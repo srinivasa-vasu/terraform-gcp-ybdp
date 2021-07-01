@@ -28,12 +28,6 @@ variable "vpc_network" {
   type        = string
 }
 
-variable "vpc_firewall" {
-  description = "Firewall used by the YugaByte Node"
-  default     = "default"
-  type        = string
-}
-
 variable "ssh_private_key" {
   description = "private key to connect to the bastion/replicated instance"
   type        = string

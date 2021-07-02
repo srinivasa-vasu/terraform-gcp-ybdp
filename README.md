@@ -24,7 +24,7 @@ $ git clone https://github.com/srinivasa-vasu/terraform-gcp-ybdp.git
 $ cd terraform-gcp-ybdp
 ```
 
-* Create `terraform.tfvars` file with the following info populated
+* Create `terraform.tfvars` file with the following info populated (or update `sample.terraform.tfvars` file appropriately and rename it to `terraform.tfvars`)
 
 ```   
 # GCP project info

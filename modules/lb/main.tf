@@ -7,6 +7,7 @@ resource "google_compute_address" "lb" {
   name = "${local.name}-ip"
 }
 
+# Fronend forwarding rule; Replicated instance LB
 resource "google_compute_forwarding_rule" "lb" {
   name        = "${local.name}-fr-${count.index}"
   ip_address  = google_compute_address.lb.address
@@ -17,12 +18,14 @@ resource "google_compute_forwarding_rule" "lb" {
   count = length(var.ports_forward)
 }
 
+# Backend rule to traget the replicated instance
 resource "google_compute_target_pool" "lb" {
   name          = "${local.name}-tp"
   instances     = var.instances
   health_checks = google_compute_http_health_check.lb.*.name
 }
 
+# Not sure this works. A placeholder for the time being
 resource "google_compute_http_health_check" "lb" {
   name                = "${local.name}-health-check"
   port                = var.health_check_port
@@ -35,6 +38,7 @@ resource "google_compute_http_health_check" "lb" {
   count = var.health_check ? 1 : 0
 }
 
+# Rule to allow healthcheck instance check from internal resources
 resource "google_compute_firewall" "health_check" {
   name    = "${local.name}-health-check"
   network = var.vpc_network
@@ -48,6 +52,7 @@ resource "google_compute_firewall" "health_check" {
   count = var.health_check ? 1 : 0
 }
 
+# Rule to allow access from workstation/external address
 resource "google_compute_firewall" "lb" {
   name    = "${local.name}-backend"
   network = var.vpc_network

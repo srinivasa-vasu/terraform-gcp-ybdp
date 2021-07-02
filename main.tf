@@ -27,6 +27,8 @@ data "google_compute_zones" "available" {
   region = var.region
 }
 
+# Workstation public ip to allow access to. It identies the IP where this executed and adds it to the 
+# firewall rule in the firewall block
 data "http" "localip" {
   url = "http://ipv4.icanhazip.com"
 }
@@ -61,6 +63,8 @@ data "google_compute_image" "instance_image" {
 #   }
 # }
 
+# Replicated instance resource; can have more than 1 instance for HA; set `replicated_instance_count` variable
+# appropriately 
 resource "google_compute_instance" "replicated_instance" {
   count        = var.replicated_instance_count
   name         = "${var.identifier}-replicated-n${format("%d", count.index + 1)}"
@@ -79,7 +83,8 @@ resource "google_compute_instance" "replicated_instance" {
     sshKeys = "${var.ssh_user}:${file(var.ssh_public_key)}"
   }
 
-  metadata_startup_script = "curl -sSL https://get.replicated.com/docker | sudo bash"
+  # Run the script once during the first start-up. Upgrade to this would happen in a controlled fashion
+  metadata_startup_script = "[[ ! -f ~/init-replicated.completed ]] && (curl -sSL https://get.replicated.com/docker && touch ~/init-replicated.completed) | sudo bash"
 
   network_interface {
     network    = module.network.network
@@ -93,6 +98,8 @@ resource "google_compute_address" "bastion_ip" {
   count        = var.bastion_create ? 1 : 0
 }
 
+# Bastion instance to connect to the platform network. Platform network is internal. To ssh to the replicated machine
+# set `bastion_create` to true to get a bastion instance to connect to the platform network
 resource "google_compute_instance" "bastion_instance" {
   count        = var.bastion_create ? 1 : 0
   name         = "${var.identifier}-bastion"
@@ -121,6 +128,7 @@ resource "google_compute_instance" "bastion_instance" {
 
 }
 
+# VPC module
 module "network" {
   source = "./modules/network"
 
@@ -135,6 +143,7 @@ module "network" {
   bastion_create   = var.bastion_create
 }
 
+# Load balancer module
 module "lb" {
   source = "./modules/lb"
 

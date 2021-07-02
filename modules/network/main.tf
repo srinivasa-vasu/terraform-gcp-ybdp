@@ -1,5 +1,5 @@
 locals {
-  is_new_vpc = var.use_existing_vpc ? 0 : 1
+  is_new_vpc = var.use_existing_vpc ? 0 : 1 # flag to determine new/existing vpc
   name       = "${var.identifier}-${var.vpc_network}"
 }
 
@@ -34,6 +34,7 @@ resource "google_compute_router" "router" {
   }
 }
 
+# NAT instance to proxy internet connection from the platform network instances
 resource "google_compute_router_nat" "nat" {
   name                               = "${local.name}-nat"
   router                             = google_compute_router.router.name
@@ -47,28 +48,31 @@ resource "google_compute_router_nat" "nat" {
   }
 }
 
+# Rules to allow access from workstation/external machine ip to the universe services
 resource "google_compute_firewall" "web_svc" {
   name    = "${local.name}-web-svc"
   network = data.google_compute_network.vpc_state.id
   allow {
     protocol = "tcp"
-    ports    = ["9000", "7000", "6379", "9042", "5433", "22"]
+    ports    = ["9000", "7000", "6379", "9042", "5433"]
   }
   target_tags   = compact(var.target_tags)
   source_ranges = [var.ingress_cidr]
 }
 
+# Rules for intra network comms
 resource "google_compute_firewall" "intra_svc" {
   name    = "${local.name}-intra-svc"
   network = data.google_compute_network.vpc_state.id
   allow {
     protocol = "tcp"
-    ports    = ["7100", "9100"]
+    ports    = ["7100", "9100", "22"]
   }
   target_tags   = compact(var.target_tags)
   source_ranges = [var.network_cidr]
 }
 
+# ssh access to the bastion host, if enabled
 resource "google_compute_firewall" "ssh" {
   name    = "${local.name}-ssh"
   network = data.google_compute_network.vpc_state.id

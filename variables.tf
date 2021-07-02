@@ -1,3 +1,4 @@
+# services inputs
 variable "control_name" {
   description = "name of the replicated instance"
   type        = string
@@ -10,8 +11,8 @@ variable "replicated_instance_count" {
   type        = string
 }
 
-variable "bastion_create" {
-  description = "bastion host to access the platform network"
+variable "bastion_on" {
+  description = "flag to determine new bastion host creation"
   default     = false
   type        = bool
 }
@@ -19,12 +20,6 @@ variable "bastion_create" {
 variable "machine_image" {
   description = "name of the machine image to create the instance from"
   default     = 1
-  type        = string
-}
-
-variable "vpc_network" {
-  description = "network to provision the services to"
-  default     = "default"
   type        = string
 }
 
@@ -67,15 +62,15 @@ variable "bastion_disk_size" {
   type        = string
 }
 
-variable "region" {
-  description = "gcp region to deploy the services to"
-  default     = "us-west1"
-  type        = string
+# vpc inputs
+variable "vpc_on" {
+  description = "flag to determine new VPC creation"
+  default     = true
 }
 
-variable "identifier" {
-  description = "identifier to prefix to all resources created."
-  default     = "yugabyte"
+variable "vpc_network" {
+  description = "network name to provision the services to"
+  default     = "default"
   type        = string
 }
 
@@ -85,17 +80,37 @@ variable "network_cidr" {
   default     = "10.0.4.0/24"
 }
 
-variable "use_existing_vpc" {
-  description = "flag to determine new VPC creation"
-  default     = true
-}
-
+# cloud inputs
 variable "project" {
   description = "gcp project name"
+  type        = string
+}
+
+variable "region" {
+  description = "gcp region to deploy the services to"
+  default     = "us-west1"
   type        = string
 }
 
 variable "credentials" {
   description = "iam credentials"
   type        = string
+}
+
+# run unique identifier
+variable "identifier" {
+  description = "identifier to prefix to all resources created"
+  default     = "yugabyte"
+  type        = string
+}
+
+variable "domain" {
+  description = "domain name to provision"
+  type        = string
+}
+
+variable "dns_on" {
+  description = "flag to determine new dns creation"
+  default     = false
+  type        = bool
 }

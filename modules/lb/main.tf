@@ -14,8 +14,7 @@ resource "google_compute_forwarding_rule" "lb" {
   target      = google_compute_target_pool.lb.self_link
   port_range  = element(var.ports_forward, count.index)
   ip_protocol = local.protocol
-
-  count = length(var.ports_forward)
+  count       = length(var.ports_forward)
 }
 
 # Backend rule to traget the replicated instance
@@ -25,7 +24,7 @@ resource "google_compute_target_pool" "lb" {
   health_checks = google_compute_http_health_check.lb.*.name
 }
 
-# Not sure this works. A placeholder for the time being
+# TODO: A placeholder for the time being
 resource "google_compute_http_health_check" "lb" {
   name                = "${local.name}-health-check"
   port                = var.health_check_port
@@ -34,8 +33,7 @@ resource "google_compute_http_health_check" "lb" {
   timeout_sec         = var.health_check_timeout
   healthy_threshold   = var.health_check_healthy_threshold
   unhealthy_threshold = var.health_check_unhealthy_threshold
-
-  count = var.health_check ? 1 : 0
+  count               = var.health_check ? 1 : 0
 }
 
 # Rule to allow healthcheck instance check from internal resources
@@ -48,8 +46,7 @@ resource "google_compute_firewall" "health_check" {
   }
   source_ranges = ["209.85.152.0/22", "209.85.204.0/22", "35.191.0.0/16"]
   target_tags   = compact(var.target_tags)
-
-  count = var.health_check ? 1 : 0
+  count         = var.health_check ? 1 : 0
 }
 
 # Rule to allow access from workstation/external address
@@ -62,6 +59,5 @@ resource "google_compute_firewall" "lb" {
   }
   target_tags   = compact(var.target_tags)
   source_ranges = [var.ingress_cidr]
-
-  count = length(var.ports) > 0 ? 1 : 0
+  count         = length(var.ports) > 0 ? 1 : 0
 }

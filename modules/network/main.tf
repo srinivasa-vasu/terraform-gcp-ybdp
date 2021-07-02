@@ -1,5 +1,5 @@
 locals {
-  is_new_vpc = var.use_existing_vpc ? 0 : 1 # flag to determine new/existing vpc
+  is_new_vpc = var.vpc_on ? 1 : 0 # flag to determine new/existing vpc
   name       = "${var.identifier}-${var.vpc_network}"
 }
 
@@ -41,7 +41,6 @@ resource "google_compute_router_nat" "nat" {
   region                             = var.region
   nat_ip_allocate_option             = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
-
   log_config {
     enable = true
     filter = "ERRORS_ONLY"
@@ -82,5 +81,5 @@ resource "google_compute_firewall" "ssh" {
   }
   target_tags   = compact(["${var.identifier}-bastion"])
   source_ranges = [var.ingress_cidr]
-  count = var.bastion_create ? 1 : 0
+  count         = var.bastion_on ? 1 : 0
 }

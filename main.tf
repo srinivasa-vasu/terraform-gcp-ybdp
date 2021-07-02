@@ -13,11 +13,11 @@ provider "google" {
   credentials = file(var.credentials)
 }
 
-# provider "google-beta" {
-#   project     = var.project
-#   region      = var.region
-#   credentials = file(var.credentials)
-# }
+provider "google-beta" {
+  project     = var.project
+  region      = var.region
+  credentials = file(var.credentials)
+}
 
 locals {
   tag = "${var.identifier}-${var.control_name}"
@@ -94,14 +94,14 @@ resource "google_compute_instance" "replicated_instance" {
 }
 
 resource "google_compute_address" "bastion_ip" {
-  name         = "${var.identifier}-bastion-ip"
-  count        = var.bastion_create ? 1 : 0
+  name  = "${var.identifier}-bastion-ip"
+  count = var.bastion_on ? 1 : 0
 }
 
 # Bastion instance to connect to the platform network. Platform network is internal. To ssh to the replicated machine
-# set `bastion_create` to true to get a bastion instance to connect to the platform network
+# set `bastion_on` to true to get a bastion instance to connect to the platform network
 resource "google_compute_instance" "bastion_instance" {
-  count        = var.bastion_create ? 1 : 0
+  count        = var.bastion_on ? 1 : 0
   name         = "${var.identifier}-bastion"
   machine_type = var.bastion_node_type
   zone         = element(data.google_compute_zones.available.names, count.index)
@@ -122,33 +122,30 @@ resource "google_compute_instance" "bastion_instance" {
     network    = module.network.network
     subnetwork = module.network.subnet
     access_config {
-      nat_ip = "${google_compute_address.bastion_ip[count.index].address}"
+      nat_ip = google_compute_address.bastion_ip[count.index].address
     }
   }
 
 }
 
-# VPC module
+# VPC network related resources
 module "network" {
-  source = "./modules/network"
-
-  identifier       = var.identifier
-  region           = var.region
-  network_cidr     = var.network_cidr
-  vpc_network      = var.vpc_network
-  use_existing_vpc = var.use_existing_vpc
-  control_name     = var.control_name
-  target_tags      = ["${local.tag}"]
-  ingress_cidr     = "${chomp(data.http.localip.body)}/32"
-  bastion_create   = var.bastion_create
+  source       = "./modules/network"
+  identifier   = var.identifier
+  region       = var.region
+  network_cidr = var.network_cidr
+  vpc_network  = var.vpc_network
+  vpc_on       = var.vpc_on
+  control_name = var.control_name
+  target_tags  = ["${local.tag}"]
+  ingress_cidr = "${chomp(data.http.localip.body)}/32"
+  bastion_on   = var.bastion_on
 }
 
-# Load balancer module
+# Load balancer related resources
 module "lb" {
-  source = "./modules/lb"
-
+  source        = "./modules/lb"
   identifier    = var.identifier
-  global        = false
   vpc_network   = module.network.network
   ports         = ["443", "8800"]
   ports_forward = ["443", "8800"]
@@ -156,4 +153,13 @@ module "lb" {
   instances     = google_compute_instance.replicated_instance.*.self_link
   health_check  = true
   ingress_cidr  = "${chomp(data.http.localip.body)}/32"
+}
+
+# DNS zone related resources
+module "dns" {
+  source     = "./modules/dns"
+  identifier = var.identifier
+  domain     = var.domain
+  dns_on     = var.dns_on
+  dns_to_ip  = module.lb.address
 }

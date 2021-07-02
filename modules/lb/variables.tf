@@ -7,15 +7,13 @@ variable "local_identifier" {
   default = "lb"
 }
 
-variable "global" {
-  type = string
-}
-
 variable "vpc_network" {
   type = string
 }
 
-variable "health_check" {}
+variable "health_check" {
+  type = bool
+}
 
 variable "ports_forward" {
   type = list(any)

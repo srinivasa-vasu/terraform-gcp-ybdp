@@ -10,6 +10,7 @@ ssh_user        = "ubuntu"
 # key and cert for the replicated hostname; could be self-signed or ca signed
 replicated_host_key  = "/opt/host_domain/key"
 replicated_host_cert = "/opt/host_domain/cert"
+license_key          = "opt/platform/portal.rli"
 hostname             = "platformops"
 
 # The region name where the nodes should be spawned.

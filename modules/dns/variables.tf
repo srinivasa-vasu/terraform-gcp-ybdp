@@ -15,8 +15,8 @@ variable "dns_on" {
   type = bool
 }
 
-variable "dns_to_ip" {
-  type = string
+variable "ip_to_dns" {
+  type = list(any)
 }
 
 variable "hostname" {

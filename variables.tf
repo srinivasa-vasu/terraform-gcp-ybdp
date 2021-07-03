@@ -5,11 +5,11 @@ variable "control_name" {
   default     = "replicated"
 }
 
-variable "replicated_instance_count" {
-  description = "the number of replicated instances to create"
-  default     = 1
-  type        = string
-}
+# variable "replicated_instance_count" {
+#   description = "the number of replicated instances to create"
+#   default     = 1
+#   type        = string
+# }
 
 variable "bastion_on" {
   description = "flag to determine new bastion host creation"
@@ -150,4 +150,16 @@ variable "dns_on" {
 variable "zone" {
   description = "zone name of the existing/new one"
   type        = string
+}
+
+variable "universe_tag" {
+  description = "target tag for the universe instances"
+  type        = string
+  default     = "yugabyte-universe"
+}
+
+variable "ha_on" {
+  description = "flag to determine backup platform instance"
+  default     = false
+  type        = bool
 }

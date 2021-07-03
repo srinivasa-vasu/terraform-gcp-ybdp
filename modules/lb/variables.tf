@@ -24,9 +24,8 @@ variable "ports" {
   default = []
 }
 
-variable "instances" {
-  type    = list(any)
-  default = []
+variable "instance" {
+  type = string
 }
 
 variable "health_check_port" {

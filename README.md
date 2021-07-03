@@ -52,7 +52,10 @@ bastion_on   = "# flag to spawn host. set to 'true' if the access to ybdp is thr
 
 # domain inputs
 dns_on = "# if true, would create a new managed hosted zone"
+zone   = "# name of the existing/new zone"
 domain = "# domain name like nip.io"
+
+ha_on = "# flag to determine ha for the platform"
 
 identifier       = "# unique identifier for the run. All the resources would have this identifier"
 ```

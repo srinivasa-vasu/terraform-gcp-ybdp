@@ -49,7 +49,7 @@ resource "google_compute_instance" "instance" {
   name         = "${local.name}-n${format("%d", count.index + 1)}"
   machine_type = var.node_type
   zone         = element(var.zones, count.index)
-  tags         = var.target_tags
+  tags         = concat(var.target_tags, [format("node-%d", count.index + 1)])
 
   boot_disk {
     initialize_params {
@@ -72,7 +72,7 @@ resource "google_compute_instance" "instance" {
   }
 
   connection {
-    bastion_host        = google_compute_address.bastion_ip[count.index].address
+    bastion_host        = google_compute_address.bastion_ip[0].address # single bastion
     bastion_private_key = file(var.ssh_private_key)
     bastion_user        = var.ssh_user
     host                = self.network_interface.0.network_ip
@@ -82,16 +82,16 @@ resource "google_compute_instance" "instance" {
   }
 
   provisioner "file" {
-    source     = var.replicated_host_key
+    source      = var.replicated_host_key
     destination = "/home/${var.ssh_user}/key"
   }
   provisioner "file" {
-    source     = var.replicated_host_cert
+    source      = var.replicated_host_cert
     destination = "/home/${var.ssh_user}/cert"
   }
 
   provisioner "file" {
-    source     = var.license_key
+    source      = var.license_key
     destination = "/home/${var.ssh_user}/license"
   }
 
@@ -112,9 +112,9 @@ resource "google_compute_instance" "instance" {
     inline = [
       # clean-up job; this has to run irrespective of the other jobs
       "rm ~/key ~/cert ~/license",
-      "echo 'Garbage collection done!'" 
+      "echo 'Garbage collection done!'"
     ]
-  }  
+  }
 
 }
 

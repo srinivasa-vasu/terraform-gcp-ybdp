@@ -10,8 +10,12 @@ output "ssh_key" {
 }
 
 # instance related
-output "replicated_instance" {
+output "main_replicated_instance" {
   value = "https://${module.lb.address}:8800"
+}
+
+output "fallback_replicated_instance" {
+  value = var.ha_on ? "https://${module.fb_lb[0].address}:8800" : "NA"
 }
 
 output "bastion_instance" {
@@ -20,10 +24,14 @@ output "bastion_instance" {
 
 output "console_password" {
   sensitive = true
-  value = module.compute.console_password
+  value     = module.compute.console_password
 }
 
 # vpc related
+output "target_universe_tag" {
+  value = var.universe_tag
+}
+
 output "network" {
   value = module.network.network
 }
@@ -59,12 +67,20 @@ output "universe_subnet_name" {
 }
 
 # lb related
-output "lb_name" {
+output "main_lb_name" {
   value = module.lb.name
 }
 
-output "lb_address" {
+output "main_lb_address" {
   value = module.lb.address
+}
+
+output "fallback_lb_name" {
+  value = var.ha_on ? module.fb_lb[0].name : "NA"
+}
+
+output "fallback_lb_address" {
+  value = var.ha_on ? module.fb_lb[0].address : "NA"
 }
 
 # dns related
@@ -76,6 +92,10 @@ output "hosted_zone" {
   value = module.dns.hosted_zone
 }
 
-output "replicated_console_dns" {
-  value = module.dns.replicated_console_dns
+output "main_replicated_console_dns" {
+  value = module.dns.main_replicated_console_dns
+}
+
+output "fallback_replicated_console_dns" {
+  value = module.dns.fb_replicated_console_dns
 }

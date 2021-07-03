@@ -1,5 +1,5 @@
-output "instance" {
-  value = google_compute_instance.instance.*.self_link
+output "instances" {
+  value = google_compute_instance.instance.*
 }
 
 output "bastion_instance" {
@@ -8,5 +8,5 @@ output "bastion_instance" {
 
 output "console_password" {
   sensitive = true
-  value = random_password.password.result
+  value     = random_password.password.result
 }

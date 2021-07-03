@@ -7,12 +7,12 @@ variable "region" {
 }
 
 variable "control_subnet_cidr" {
-  type = string
+  type        = string
   description = "replicated and bastion instances will be provisioned in this subnet"
 }
 
 variable "universe_subnet_cidr" {
-  type = string
+  type        = string
   description = "universe instances will be provisioned in this subnet"
 }
 
@@ -28,15 +28,15 @@ variable "control_name" {
   type = string
 }
 
-variable "target_tags" {
-  default = []
-  type    = list(any)
-}
-
 variable "ingress_cidr" {
   type = string
 }
 
 variable "bastion_on" {
   type = bool
+}
+
+variable "target_tags" {
+  description = "target tag for the universe & platform instances"
+  type        = list(any)
 }

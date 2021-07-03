@@ -20,11 +20,11 @@ resource "google_compute_forwarding_rule" "lb" {
 # Backend rule to traget the replicated instance
 resource "google_compute_target_pool" "lb" {
   name          = "${local.name}-tp"
-  instances     = var.instances
+  instances     = [var.instance]
   health_checks = google_compute_http_health_check.lb.*.name
 }
 
-# TODO: A placeholder for the time being
+# Platform healthcheck endpoint
 resource "google_compute_http_health_check" "lb" {
   name                = "${local.name}-health-check"
   port                = var.health_check_port
@@ -45,7 +45,7 @@ resource "google_compute_firewall" "health_check" {
     ports    = ["${var.health_check_port}"]
   }
   source_ranges = ["209.85.152.0/22", "209.85.204.0/22", "35.191.0.0/16"]
-  target_tags   = compact(var.target_tags)
+  target_tags   = concat(var.target_tags)
   count         = var.health_check ? 1 : 0
 }
 
@@ -57,7 +57,7 @@ resource "google_compute_firewall" "lb" {
     protocol = local.protocol
     ports    = var.ports
   }
-  target_tags   = compact(var.target_tags)
+  target_tags   = concat(var.target_tags)
   source_ranges = [var.ingress_cidr]
   count         = length(var.ports) > 0 ? 1 : 0
 }

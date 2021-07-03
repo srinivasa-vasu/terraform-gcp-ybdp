@@ -1,16 +1,16 @@
 # GCP project info
 project      = "yb"
 control_name = "dev"
-credentials     = "/opt/creds.json"
+credentials  = "/opt/creds.json"
 
 # ssh keys to connect to the bastion and replicated instances
 ssh_private_key = "/opt/yb"
 ssh_public_key  = "/opt/yb.pub"
 ssh_user        = "ubuntu"
 # key and cert for the replicated hostname; could be self-signed or ca signed
-replicated_host_key ="/opt/host_domain/key"
-replicated_host_cert ="/opt/host_domain/cert"
-hostname = "platformops"
+replicated_host_key  = "/opt/host_domain/key"
+replicated_host_cert = "/opt/host_domain/cert"
+hostname             = "platformops"
 
 # The region name where the nodes should be spawned.
 region = "asia-south1"
@@ -25,7 +25,12 @@ bastion_on = true
 
 # domain inputs
 dns_on = true
+# name of the existing/new zone
+zone   = "yb"
 domain = "nip.io"
+
+# flag to determine ha for the platform
+ha_on = true
 
 # unique identifier for the run. All the resources would have this identifier
 identifier = "yugabyte"

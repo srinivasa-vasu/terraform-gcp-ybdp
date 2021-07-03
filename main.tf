@@ -49,22 +49,39 @@ module "network" {
   vpc_network          = var.vpc_network
   vpc_on               = var.vpc_on
   control_name         = var.control_name
-  target_tags          = ["${local.tag}"]
   ingress_cidr         = local.ingress
+  target_tags          = ["${local.tag}", "${var.universe_tag}"]
   bastion_on           = var.bastion_on
 }
 
 # Load balancer and related firewall resources
 module "lb" {
+  # for_each      = module.compute.instances
+  # for_each = {
+  #   for ic in range(var.replicated_instance_count) : ic => ic
+  # }
   source        = "./modules/lb"
-  identifier    = var.identifier
+  identifier    = "${var.identifier}-main"
   vpc_network   = module.network.network
   ports         = ["443", "8800"]
   ports_forward = ["443", "8800"]
-  target_tags   = ["${local.tag}"]
-  instances     = module.compute.instance
+  target_tags   = ["${local.tag}", "node-1"]
+  instance      = module.compute.instances[0].self_link
   health_check  = true
   ingress_cidr  = local.ingress
+}
+
+module "fb_lb" {
+  source        = "./modules/lb"
+  identifier    = "${var.identifier}-fb"
+  vpc_network   = module.network.network
+  ports         = ["443", "8800"]
+  ports_forward = ["443", "8800"]
+  target_tags   = ["${local.tag}", "node-2"]
+  instance      = module.compute.instances[1].self_link
+  health_check  = true
+  ingress_cidr  = local.ingress
+  count         = var.ha_on ? 1 : 0
 }
 
 # DNS zone related resources
@@ -73,7 +90,7 @@ module "dns" {
   dns_on     = var.dns_on
   identifier = var.identifier
   domain     = var.domain
-  dns_to_ip  = module.lb.address
+  ip_to_dns  = var.ha_on ? [module.lb.address, module.fb_lb[0].address] : [module.lb.address]
   hostname   = var.hostname
   zone       = var.zone
 }
@@ -82,7 +99,7 @@ module "dns" {
 module "compute" {
   source               = "./modules/compute"
   identifier           = var.identifier
-  instance_count       = var.replicated_instance_count
+  instance_count       = var.ha_on ? 2 : 1
   node_type            = var.node_type
   node_img             = data.google_compute_image.instance_image.self_link
   disk_size            = var.disk_size

@@ -22,7 +22,6 @@ resource "google_compute_subnetwork" "control_subnet" {
   network       = data.google_compute_network.vpc_state.id
   region        = var.region
   count         = local.is_new_vpc
-  # private_ip_google_access = "${var.internetless}"
 }
 
 resource "google_compute_subnetwork" "universe_subnet" {
@@ -31,7 +30,6 @@ resource "google_compute_subnetwork" "universe_subnet" {
   network       = data.google_compute_network.vpc_state.id
   region        = var.region
   count         = local.is_new_vpc
-  # private_ip_google_access = "${var.internetless}"
 }
 
 resource "google_compute_router" "router" {

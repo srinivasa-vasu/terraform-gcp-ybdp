@@ -104,7 +104,6 @@ resource "google_compute_instance" "instance" {
       "echo '{\"Password\": {\"Password\": \"${random_password.password.result}\"}}' | replicatedctl console-auth import",
       "replicatedctl license-load < ~/license"
       # "replicatedctl preflight run",
-      # "rm ~/key ~/cert ~/license",
     ]
   }
 

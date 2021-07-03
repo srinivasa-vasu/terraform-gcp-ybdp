@@ -18,3 +18,13 @@ variable "dns_on" {
 variable "dns_to_ip" {
   type = string
 }
+
+variable "hostname" {
+  description = "hostname without the domain name"
+  type        = string
+}
+
+variable "zone" {
+  description = "zone name of the existing/new one"
+  type        = string
+}

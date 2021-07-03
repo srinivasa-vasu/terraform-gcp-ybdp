@@ -15,7 +15,12 @@ output "replicated_instance" {
 }
 
 output "bastion_instance" {
-  value = var.bastion_on ? join(" ", ["ssh -i <private_key>", "${one(google_compute_address.bastion_ip.*.address)}"]) : "NA"
+  value = module.compute.bastion_instance
+}
+
+output "console_password" {
+  sensitive = true
+  value = module.compute.console_password
 }
 
 # vpc related
@@ -27,20 +32,30 @@ output "network_name" {
   value = module.network.network_name
 }
 
-output "subnet" {
-  value = module.network.subnet
+# yugaware management network details
+output "control_subnet" {
+  value = module.network.control_subnet
 }
 
-output "subnet_cidr_range" {
-  value = module.network.subnet_cidr_range
+output "control_subnet_cidr_range" {
+  value = module.network.control_subnet_cidr_range
 }
 
-output "subnet_gateway" {
-  value = module.network.subnet_gateway
+output "control_subnet_name" {
+  value = module.network.control_subnet_name
 }
 
-output "subnet_name" {
-  value = module.network.subnet_name
+# yugaware universe network details
+output "universe_subnet" {
+  value = module.network.universe_subnet
+}
+
+output "universe_subnet_cidr_range" {
+  value = module.network.universe_subnet_cidr_range
+}
+
+output "universe_subnet_name" {
+  value = module.network.universe_subnet_name
 }
 
 # lb related

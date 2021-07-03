@@ -30,17 +30,21 @@ $ cd terraform-gcp-ybdp
 # GCP project info
 project       = "# gcp project id"
 control_name  = "# ybdp control plane name"
-
-# key pair
 credentials     = "# gcp service account credential file path"
+
+# ssh keys to connect to the bastion and replicated instances
 ssh_private_key = "# ssh private key file path"
 ssh_public_key  = "# ssh public key file path"
 ssh_user        = "# ssh user name"
+# key and cert for the replicated hostname; could be self-signed or ca signed
+replicated_host_key ="# replicated instance host private key"
+replicated_host_cert ="# replicated instance host cert"
+hostname = "# replicated instance host name; this will be suffixed with the `domain` name; just mention the hostname without the domain"
 
 region = "# region name where the node(s) should be spawned"
 
 # vpc inputs
-vpc_on = "# if 'true', resources would be provisioned in the existing vpc; if not, will create a new vpc"
+vpc_on = "# if 'true', resources would be provisioned in the existing vpc; if not, will create a new vpc and 2 subnets; 1 for management instances and the other for the universe"
 vpc_network      = "# vpc network name; existing/new network name"
 
 # bastion host setting

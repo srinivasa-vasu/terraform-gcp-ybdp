@@ -16,9 +16,18 @@ data "google_compute_network" "vpc_state" {
   ]
 }
 
-resource "google_compute_subnetwork" "subnet" {
-  name          = "${local.name}-subnet"
-  ip_cidr_range = var.network_cidr
+resource "google_compute_subnetwork" "control_subnet" {
+  name          = "${local.name}-control"
+  ip_cidr_range = var.control_subnet_cidr
+  network       = data.google_compute_network.vpc_state.id
+  region        = var.region
+  count         = local.is_new_vpc
+  # private_ip_google_access = "${var.internetless}"
+}
+
+resource "google_compute_subnetwork" "universe_subnet" {
+  name          = "${local.name}-universe"
+  ip_cidr_range = var.universe_subnet_cidr
   network       = data.google_compute_network.vpc_state.id
   region        = var.region
   count         = local.is_new_vpc
@@ -68,7 +77,7 @@ resource "google_compute_firewall" "intra_svc" {
     ports    = ["7100", "9100", "22"]
   }
   target_tags   = compact(var.target_tags)
-  source_ranges = [var.network_cidr]
+  source_ranges = [var.control_subnet_cidr, var.universe_subnet_cidr]
 }
 
 # ssh access to the bastion host, if enabled

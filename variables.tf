@@ -38,6 +38,26 @@ variable "ssh_user" {
   type        = string
 }
 
+variable "replicated_host_key" {
+  description = "hostname private key to upload to the replicated instance"
+  type        = string
+}
+
+variable "replicated_host_cert" {
+  description = "hostname cert to upload to the replicated instance"
+  type        = string
+}
+
+variable "license_key" {
+  description = "license key to activate the yugabyte platform"
+  type        = string
+}
+
+variable "hostname" {
+  description = "hostname without the domain name"
+  type        = string
+}
+
 variable "node_type" {
   description = "type of the node to be used for replicated instance"
   default     = "e2-standard-4"
@@ -72,6 +92,18 @@ variable "vpc_network" {
   description = "network name to provision the services to"
   default     = "default"
   type        = string
+}
+
+variable "control_network_cidr" {
+  type        = string
+  description = "cidr for fresh vpc network subnet"
+  default     = "10.0.2.0/27"
+}
+
+variable "universe_network_cidr" {
+  type        = string
+  description = "cidr for fresh vpc network subnet"
+  default     = "10.0.3.0/24"
 }
 
 variable "network_cidr" {
@@ -113,4 +145,9 @@ variable "dns_on" {
   description = "flag to determine new dns creation"
   default     = false
   type        = bool
+}
+
+variable "zone" {
+  description = "zone name of the existing/new one"
+  type        = string
 }

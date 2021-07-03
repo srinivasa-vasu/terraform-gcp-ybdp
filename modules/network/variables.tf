@@ -6,8 +6,14 @@ variable "region" {
   type = string
 }
 
-variable "network_cidr" {
+variable "control_subnet_cidr" {
   type = string
+  description = "replicated and bastion instances will be provisioned in this subnet"
+}
+
+variable "universe_subnet_cidr" {
+  type = string
+  description = "universe instances will be provisioned in this subnet"
 }
 
 variable "vpc_on" {

@@ -37,11 +37,6 @@ resource "random_password" "password" {
   override_special = "_%@!"
 }
 
-# resource "local_file" "special" {
-#     content     = "foo!"
-#     filename = "${var.license_key}"
-# }
-
 # Replicated instance resource; can have more than 1 instance for HA; set `replicated_instance_count` variable
 # appropriately 
 resource "google_compute_instance" "instance" {
@@ -71,11 +66,15 @@ resource "google_compute_instance" "instance" {
     subnetwork = var.vpc_nw_subnet
   }
 
+}
+
+resource "null_resource" "post_create_bastion_on" {
+  count = var.bastion_on ? var.instance_count : 0
   connection {
     bastion_host        = google_compute_address.bastion_ip[0].address # single bastion
     bastion_private_key = file(var.ssh_private_key)
     bastion_user        = var.ssh_user
-    host                = self.network_interface.0.network_ip
+    host                = google_compute_instance.instance[count.index].network_interface.0.network_ip
     type                = "ssh"
     user                = var.ssh_user
     private_key         = file(var.ssh_private_key)
@@ -114,7 +113,50 @@ resource "google_compute_instance" "instance" {
       "echo 'Garbage collection done!'"
     ]
   }
+}
 
+resource "null_resource" "post_create_bastion_off" {
+  count = var.bastion_on ? 0 : var.instance_count
+  connection {
+    host        = google_compute_instance.instance[count.index].network_interface.0.network_ip
+    type        = "ssh"
+    user        = var.ssh_user
+    private_key = file(var.ssh_private_key)
+  }
+
+  provisioner "file" {
+    source      = var.replicated_host_key
+    destination = "/home/${var.ssh_user}/key"
+  }
+  provisioner "file" {
+    source      = var.replicated_host_cert
+    destination = "/home/${var.ssh_user}/cert"
+  }
+
+  provisioner "file" {
+    source      = var.license_key
+    destination = "/home/${var.ssh_user}/license"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      # update the hostname key and cert
+      # wait for ~3+ mins for the replicated instance to be up and running
+      "i=1; while [ $i -le 20 ]; do nc -vz localhost 9873 >/dev/null 2>&1; test $? -eq 0 && { replicated console cert set ${var.hostname} ~/key ~/cert; touch ~/cert_upload.completed; break; } || sleep $i; i=$(expr $i + 1); done",
+      "test ! -f ~/cert_upload.completed && echo 'Cert upload has failed' || echo 'Cert uploaded successfully'",
+      "echo '{\"Password\": {\"Password\": \"${random_password.password.result}\"}}' | replicatedctl console-auth import",
+      "replicatedctl license-load < ~/license"
+      # "replicatedctl preflight run",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      # clean-up job; this has to run irrespective of the other jobs
+      "rm ~/key ~/cert ~/license",
+      "echo 'Garbage collection done!'"
+    ]
+  }
 }
 
 resource "google_compute_address" "bastion_ip" {

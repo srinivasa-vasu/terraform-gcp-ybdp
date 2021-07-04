@@ -148,7 +148,7 @@ variable "zone" {
 variable "universe_tag" {
   description = "target tag for the universe instances"
   type        = string
-  default     = "yugabyte-universe"
+  default     = "cluster-server"
 }
 
 variable "ha_on" {

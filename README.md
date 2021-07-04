@@ -1,6 +1,6 @@
 # terraform-gcp-ybdp
 
-A terraform module to deploy and manage Yugabyte data platform(ybdp) in the Google cloud
+A GCP Terraform module to deploy and manage the Yugabyte data platform(ybdp)
 
 ## Pre-requisites
 

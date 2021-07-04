@@ -1,6 +1,6 @@
 locals {
   name        = var.dns_on ? "${var.identifier}-${var.zone}" : "${var.zone}"
-  root_domain = "${var.identifier}.${var.domain}"
+  root_domain = "${var.domain}"
 }
 
 resource "google_dns_managed_zone" "dns_zone" {
@@ -15,7 +15,7 @@ data "google_dns_managed_zone" "dns_zone" {
 }
 
 resource "google_dns_record_set" "platform_ops" {
-  name         = var.dns_on ? "${var.hostname}-${count.index}.${google_dns_managed_zone.dns_zone[0].dns_name}" : "${var.hostname}-${count.index}.${var.identifier}.${data.google_dns_managed_zone.dns_zone[0].dns_name}"
+  name         = var.dns_on ? "${var.hostname}-${count.index}.${google_dns_managed_zone.dns_zone[0].dns_name}" : "${var.hostname}-${count.index}.${data.google_dns_managed_zone.dns_zone[0].dns_name}"
   type         = "A"
   ttl          = 300
   managed_zone = var.dns_on ? google_dns_managed_zone.dns_zone[0].name : data.google_dns_managed_zone.dns_zone[0].name

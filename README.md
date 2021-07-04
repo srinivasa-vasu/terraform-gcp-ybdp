@@ -27,6 +27,7 @@ $ cd terraform-gcp-ybdp
 * Create `terraform.tfvars` file with the following info populated (or update `sample.terraform.tfvars` file appropriately and rename it to `terraform.tfvars`)
 
 ```   
+-----------------------------------------------mandatory inputs-----------------------------------------------
 # GCP project info
 project         = "# gcp project id"
 control_name    = "# ybdp control plane name"
@@ -42,6 +43,13 @@ replicated_host_cert    = "# replicated instance host cert path"
 license_key             = "# platform license key path"
 hostname                = "# replicated instance host name; this will be suffixed with the `domain` name; just mention the hostname without the domain"
 
+# domain inputs
+zone   = "# name of the existing/new zone"
+domain = "# domain name like nip.io"
+-----------------------------------------------mandatory inputs-----------------------------------------------
+dns_on = "# if true, would create a new managed hosted zone"
+
+
 region = "# region name where the node(s) should be spawned"
 
 # vpc inputs
@@ -50,11 +58,6 @@ vpc_network         = "# vpc network name; existing/new network name"
 
 # bastion host setting
 bastion_on   = "# flag to spawn host. set to 'true' if the access to ybdp is through the bastion host"
-
-# domain inputs
-dns_on = "# if true, would create a new managed hosted zone"
-zone   = "# name of the existing/new zone"
-domain = "# domain name like nip.io"
 
 ha_on = "# flag to determine ha for the platform"
 

@@ -13,6 +13,14 @@ replicated_host_cert = "/opt/host_domain/cert"
 license_key          = "opt/platform/portal.rli"
 hostname             = "platformops"
 
+# domain inputs
+# name of the existing/new managed hosting zone. If it exists, then it would provision only the 'A' name records
+# for the replicated instance(s). If the `dns_on` flag is off, then this zone should exists in the managed hosted zone
+zone   = "yb"
+domain = "nip.io"
+
+dns_on = false
+
 # The region name where the nodes should be spawned.
 region = "asia-south1"
 
@@ -21,14 +29,9 @@ vpc_on = true
 # if `vpc_on` is false, then `vpc_network` should already exist 
 vpc_network = "ybdp"
 
-# bastion setting
+# bastion setting. # if the flag is not set, then this provisioning should be run from the google VPC network. 
+# Running it from the local machine would fail without a bastion instance
 bastion_on = true
-
-# domain inputs
-dns_on = true
-# name of the existing/new zone
-zone   = "yb"
-domain = "nip.io"
 
 # flag to determine ha for the platform
 ha_on = true

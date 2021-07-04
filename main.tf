@@ -22,6 +22,7 @@ provider "google-beta" {
 locals {
   tag     = "${var.identifier}-${var.control_name}"
   ingress = "${chomp(data.http.localip.body)}/32"
+  ports   = ["443", "8800"]
 }
 
 data "google_compute_zones" "available" {
@@ -63,8 +64,8 @@ module "lb" {
   source        = "./modules/lb"
   identifier    = "${var.identifier}-main"
   vpc_network   = module.network.network
-  ports         = ["443", "8800"]
-  ports_forward = ["443", "8800"]
+  ports         = local.ports
+  ports_forward = local.ports
   target_tags   = ["${local.tag}", "node-1"]
   instance      = module.compute.instances[0].self_link
   health_check  = true
@@ -75,8 +76,8 @@ module "fb_lb" {
   source        = "./modules/lb"
   identifier    = "${var.identifier}-fb"
   vpc_network   = module.network.network
-  ports         = ["443", "8800"]
-  ports_forward = ["443", "8800"]
+  ports         = local.ports
+  ports_forward = local.ports
   target_tags   = ["${local.tag}", "node-2"]
   instance      = module.compute.instances[1].self_link
   health_check  = true

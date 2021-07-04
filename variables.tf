@@ -5,21 +5,14 @@ variable "control_name" {
   default     = "replicated"
 }
 
-# variable "replicated_instance_count" {
-#   description = "the number of replicated instances to create"
-#   default     = 1
-#   type        = string
-# }
-
 variable "bastion_on" {
   description = "flag to determine new bastion host creation"
-  default     = false
+  default     = true
   type        = bool
 }
 
 variable "machine_image" {
   description = "name of the machine image to create the instance from"
-  default     = 1
   type        = string
 }
 
@@ -85,7 +78,7 @@ variable "bastion_disk_size" {
 # vpc inputs
 variable "vpc_on" {
   description = "flag to determine new VPC creation"
-  default     = true
+  default     = false
 }
 
 variable "vpc_network" {

@@ -29,7 +29,7 @@ data "google_compute_zones" "available" {
   region = var.region
 }
 
-# Workstation public ip to allow access to. It identies the IP where this executed and adds it to the 
+# Workstation public ip to allow access to. It identies the IP where this gets executed and adds it to the 
 # firewall rule in the firewall block
 data "http" "localip" {
   url = "http://ipv4.icanhazip.com"

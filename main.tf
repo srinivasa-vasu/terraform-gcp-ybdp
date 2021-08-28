@@ -33,6 +33,7 @@ data "google_compute_zones" "available" {
 # firewall rule in the firewall block
 data "http" "localip" {
   url = "http://ipv4.icanhazip.com"
+  # url = "http://checkip.amazonaws.com"
 }
 
 data "google_compute_image" "instance_image" {
@@ -45,14 +46,17 @@ module "network" {
   source               = "./modules/network"
   identifier           = var.identifier
   region               = var.region
+  additional_regions   = var.vpc_on ? var.additional_regions : list("")
   control_subnet_cidr  = var.control_network_cidr
   universe_subnet_cidr = var.universe_network_cidr
+  additional_universe_subnet_cidr = var.vpc_on ? var.additional_regions_cidr : list("")
   vpc_network          = var.vpc_network
   vpc_on               = var.vpc_on
   control_name         = var.control_name
   ingress_cidr         = local.ingress
   target_tags          = ["${local.tag}", "${var.universe_tag}"]
   bastion_on           = var.bastion_on
+  public_on            = var.public_on
 }
 
 # Load balancer and related firewall resources

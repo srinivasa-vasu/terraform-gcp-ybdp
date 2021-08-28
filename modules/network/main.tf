@@ -33,6 +33,14 @@ resource "google_compute_subnetwork" "universe_subnet" {
   count         = local.is_new_vpc
 }
 
+resource "google_compute_subnetwork" "additional_universe_subnet" {
+  name          = "${local.name}-universe"
+  ip_cidr_range = element(var.additional_universe_subnet_cidr, count.index) 
+  network       = data.google_compute_network.vpc_state.id
+  region        = element(var.additional_regions, count.index) 
+  count         = length(var.additional_regions)
+}
+
 resource "google_compute_router" "router" {
   name    = "${local.name}-router"
   region  = var.region
@@ -90,4 +98,15 @@ resource "google_compute_firewall" "ssh" {
   target_tags   = compact(["${var.identifier}-bastion"])
   source_ranges = [var.ingress_cidr]
   count         = var.bastion_on ? 1 : 0
+}
+
+# Rules to allow access from workstation/external machine ip to the universe services
+resource "google_compute_firewall" "allow_all" {
+  name    = "${local.name}-allow-all"
+  network = data.google_compute_network.vpc_state.id
+  allow {
+    protocol = local.protocol
+  }
+  source_ranges = [var.ingress_cidr]
+  count         = var.public_on ? 1 : 0
 }

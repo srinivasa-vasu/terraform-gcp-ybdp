@@ -11,10 +11,10 @@ variable "bastion_on" {
   type        = bool
 }
 
-variable "machine_image" {
-  description = "name of the machine image to create the instance from"
-  type        = string
-}
+#variable "machine_image" {
+#  description = "name of the machine image to create the instance from"
+#  type        = string
+#}
 
 variable "ssh_private_key" {
   description = "private key to connect to the bastion/replicated instance"
@@ -71,7 +71,7 @@ variable "disk_size" {
 
 variable "bastion_disk_size" {
   description = "bastion instance diks size"
-  default     = "20"
+  default     = "50"
   type        = string
 }
 
@@ -89,20 +89,20 @@ variable "vpc_network" {
 
 variable "control_network_cidr" {
   type        = string
-  description = "cidr for fresh vpc network subnet"
-  default     = "10.0.2.0/27"
+  description = "cidr for a fresh vpc network subnet"
+  default     = "10.160.2.0/27"
 }
 
 variable "universe_network_cidr" {
   type        = string
-  description = "cidr for fresh vpc network subnet"
-  default     = "10.0.3.0/24"
+  description = "cidr for a fresh vpc network subnet"
+  default     = "10.160.3.0/24"
 }
 
 variable "network_cidr" {
   type        = string
-  description = "cidr for fresh vpc network subnet"
-  default     = "10.0.4.0/24"
+  description = "cidr for a fresh vpc network subnet"
+  default     = "10.160.4.0/24"
 }
 
 # cloud inputs
@@ -115,6 +115,18 @@ variable "region" {
   description = "gcp region to deploy the services to"
   default     = "us-west1"
   type        = string
+}
+
+variable "additional_regions" {
+  description = "additional gcp regions to create in the vpc"
+  type    = list(any)
+  default = []
+}
+
+variable "additional_regions_cidr" {
+  description = "additional gcp regions to create in the vpc"
+  type    = list(any)
+  default = ["10.160.5.0/24", "10.160.6.0/24"]
 }
 
 variable "credentials" {
@@ -153,6 +165,12 @@ variable "universe_tag" {
 
 variable "ha_on" {
   description = "flag to determine backup platform instance"
+  default     = false
+  type        = bool
+}
+
+variable "public_on" {
+  description = "flag to determine default allow-all port access to the client ip"
   default     = false
   type        = bool
 }

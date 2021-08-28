@@ -35,9 +35,9 @@ resource "google_compute_subnetwork" "universe_subnet" {
 
 resource "google_compute_subnetwork" "additional_universe_subnet" {
   name          = "${local.name}-universe"
-  ip_cidr_range = element(var.additional_universe_subnet_cidr, count.index) 
+  ip_cidr_range = element(var.additional_universe_subnet_cidr, count.index)
   network       = data.google_compute_network.vpc_state.id
-  region        = element(var.additional_regions, count.index) 
+  region        = element(var.additional_regions, count.index)
   count         = length(var.additional_regions)
 }
 

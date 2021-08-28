@@ -1,6 +1,6 @@
 locals {
   name        = var.dns_on ? "${var.identifier}-${var.zone}" : "${var.zone}"
-  root_domain = "${var.domain}"
+  root_domain = var.domain
 }
 
 resource "google_dns_managed_zone" "dns_zone" {

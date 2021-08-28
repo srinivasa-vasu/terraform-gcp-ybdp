@@ -8,8 +8,8 @@ variable "region" {
 
 variable "additional_regions" {
   description = "additional gcp regions to create in the vpc"
-  type    = list(any)
-  default = []
+  type        = list(any)
+  default     = []
 }
 
 variable "control_subnet_cidr" {
@@ -24,7 +24,7 @@ variable "universe_subnet_cidr" {
 
 variable "additional_universe_subnet_cidr" {
   description = "cross region universe provisioning"
-  type    = list(any)
+  type        = list(any)
 }
 
 variable "vpc_on" {

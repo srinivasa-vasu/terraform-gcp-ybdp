@@ -91,7 +91,7 @@ variable "license_key" {
 }
 
 variable "hostname" {
-  description = "hostname without the domain name"
+  description = "platform hostname DNS"
   type        = string
 }
 

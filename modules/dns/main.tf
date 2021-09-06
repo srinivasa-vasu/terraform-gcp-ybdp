@@ -15,7 +15,8 @@ data "google_dns_managed_zone" "dns_zone" {
 }
 
 resource "google_dns_record_set" "platform_ops" {
-  name         = var.dns_on ? "${var.hostname}-${count.index}.${google_dns_managed_zone.dns_zone[0].dns_name}" : "${var.hostname}-${count.index}.${var.identifier}.${data.google_dns_managed_zone.dns_zone[0].dns_name}"
+  # use index for the secondary instances
+  name         = var.dns_on ? ((count.index > 0) ? "${var.hostname}-${count.index}.${google_dns_managed_zone.dns_zone[0].dns_name}" : "${var.hostname}.${google_dns_managed_zone.dns_zone[0].dns_name}") : ((count.index > 0) ? "${var.hostname}-${count.index}.${var.identifier}.${data.google_dns_managed_zone.dns_zone[0].dns_name}" : "${var.hostname}.${var.identifier}.${data.google_dns_managed_zone.dns_zone[0].dns_name}")
   type         = "A"
   ttl          = 300
   managed_zone = var.dns_on ? google_dns_managed_zone.dns_zone[0].name : data.google_dns_managed_zone.dns_zone[0].name

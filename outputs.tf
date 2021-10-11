@@ -22,6 +22,10 @@ output "bastion_instance" {
   value = module.compute.bastion_instance
 }
 
+output "replicated_instances" {
+  value = module.compute.replicated_instances
+}
+
 output "console_password" {
   sensitive = true
   value     = module.compute.console_password

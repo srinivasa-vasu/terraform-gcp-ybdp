@@ -3,31 +3,6 @@ locals {
   bastion_name = "${var.identifier}-bastion"
 }
 
-# resource "google_service_account" "sa" {
-#   account_id   = local.tag
-#   display_name = "Replicated SA"
-# }
-
-# resource "google_compute_instance_from_machine_image" "replicated_instance" {
-#   provider             = google-beta
-#   count                = var.replicated_instance_count
-#   name                 = "${var.identifier}-replicated-n${format("%d", count.index + 1)}"
-#   machine_type         = var.node_type
-#   zone                 = element(data.google_compute_zones.available.names, count.index)
-#   tags                 = ["${local.tag}"]
-#   source_machine_image = "projects/${var.project}/global/machineImages/${var.machine_image}"
-
-#   network_interface {
-#     network    = module.network.network
-#     subnetwork = module.network.subnet
-#   }
-
-#   service_account {
-#     email  = google_service_account.sa.email
-#     scopes = ["cloud-platform"]
-#   }
-# }
-
 resource "random_password" "password" {
   length           = 16
   special          = true
@@ -68,8 +43,67 @@ resource "google_compute_instance" "instance" {
 
 }
 
+# Bastion instance to connect to the platform network. It's recommended to keep the platform in the internal
+# network. To ssh to the replicated machine set `bastion_on` to true to get a bastion instance to connect 
+# to the platform network
+resource "google_compute_instance" "bastion_instance" {
+  count        = var.bastion_on ? 1 : 0
+  name         = local.bastion_name
+  machine_type = var.bastion_node_type
+  zone         = element(var.zones, count.index)
+  tags         = ["${local.bastion_name}"]
+
+  boot_disk {
+    initialize_params {
+      image = var.node_img
+      size  = var.bastion_disk_size
+    }
+  }
+
+  metadata = {
+    sshKeys = "${var.ssh_user}:${file(var.ssh_public_key)}"
+  }
+
+  network_interface {
+    network    = var.vpc_nw
+    subnetwork = var.vpc_nw_subnet
+    access_config {
+      nat_ip = google_compute_address.bastion_ip[count.index].address
+    }
+  }
+
+}
+
+# copy the private key file to connect from bastion to the replicated host
+resource "null_resource" "post_create_bastion_on_init" {
+  count = var.bastion_on ? 1 : 0
+  depends_on = [
+    google_compute_instance.bastion_instance
+  ]
+  connection {
+    host                = google_compute_address.bastion_ip[0].address
+    type                = "ssh"
+    user                = var.ssh_user
+    private_key         = file(var.ssh_private_key)
+  }
+  provisioner "file" {
+    source      = var.ssh_private_key
+    destination = "/home/${var.ssh_user}/.yb"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "chmod 400 /home/${var.ssh_user}/.yb",
+      "echo 'All set!'"
+    ]
+  }
+}
+
 resource "null_resource" "post_create_bastion_on" {
   count = var.bastion_on ? var.instance_count : 0
+  depends_on = [
+    google_compute_instance.bastion_instance,
+    google_compute_instance.instance
+  ]
   connection {
     bastion_host        = google_compute_address.bastion_ip[0].address # single bastion
     bastion_private_key = file(var.ssh_private_key)
@@ -88,12 +122,10 @@ resource "null_resource" "post_create_bastion_on" {
     source      = var.replicated_host_cert
     destination = "/home/${var.ssh_user}/cert"
   }
-
   provisioner "file" {
     source      = var.license_key
     destination = "/home/${var.ssh_user}/license"
   }
-
   provisioner "remote-exec" {
     inline = [
       # update the hostname key and cert
@@ -117,6 +149,9 @@ resource "null_resource" "post_create_bastion_on" {
 
 resource "null_resource" "post_create_bastion_off" {
   count = var.bastion_on ? 0 : var.instance_count
+  depends_on = [
+    google_compute_instance.instance
+  ]
   connection {
     host        = google_compute_instance.instance[count.index].network_interface.0.network_ip
     type        = "ssh"
@@ -162,35 +197,4 @@ resource "null_resource" "post_create_bastion_off" {
 resource "google_compute_address" "bastion_ip" {
   name  = local.bastion_name
   count = var.bastion_on ? 1 : 0
-}
-
-# Bastion instance to connect to the platform network. It's recommended to keep the platform in the internal
-# network. To ssh to the replicated machine set `bastion_on` to true to get a bastion instance to connect 
-# to the platform network
-resource "google_compute_instance" "bastion_instance" {
-  count        = var.bastion_on ? 1 : 0
-  name         = local.bastion_name
-  machine_type = var.bastion_node_type
-  zone         = element(var.zones, count.index)
-  tags         = ["${local.bastion_name}"]
-
-  boot_disk {
-    initialize_params {
-      image = var.node_img
-      size  = var.bastion_disk_size
-    }
-  }
-
-  metadata = {
-    sshKeys = "${var.ssh_user}:${file(var.ssh_public_key)}"
-  }
-
-  network_interface {
-    network    = var.vpc_nw
-    subnetwork = var.vpc_nw_subnet
-    access_config {
-      nat_ip = google_compute_address.bastion_ip[count.index].address
-    }
-  }
-
 }

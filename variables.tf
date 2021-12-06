@@ -126,7 +126,7 @@ variable "additional_regions" {
 variable "additional_regions_cidr" {
   description = "additional gcp regions to create in the vpc"
   type        = list(any)
-  default     = ["10.160.5.0/24", "10.160.6.0/24"]
+  default     = ["10.160.5.0/24", "10.160.6.0/24", "10.160.7.0/24"]
 }
 
 variable "credentials" {

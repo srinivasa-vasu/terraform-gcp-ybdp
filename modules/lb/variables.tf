@@ -29,7 +29,7 @@ variable "instance" {
 }
 
 variable "health_check_port" {
-  default = 80
+  default = 8800
 }
 
 variable "health_check_interval" {

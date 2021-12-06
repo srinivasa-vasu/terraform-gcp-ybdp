@@ -22,7 +22,7 @@ provider "google-beta" {
 locals {
   tag     = "${var.identifier}-${var.control_name}"
   ingress = "${chomp(data.http.localip.body)}/32"
-  ports   = ["443", "8800"]
+  ports   = ["443", "8800", "9090"]
 }
 
 data "google_compute_zones" "available" {
@@ -38,6 +38,7 @@ data "http" "localip" {
 
 data "google_compute_image" "instance_image" {
   family  = "ubuntu-1804-lts"
+  # name    = "ubuntu-1804-bionic-v20211103"
   project = "ubuntu-os-cloud"
 }
 

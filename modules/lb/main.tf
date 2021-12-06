@@ -28,7 +28,7 @@ resource "google_compute_target_pool" "lb" {
 resource "google_compute_http_health_check" "lb" {
   name                = "${local.name}-health-check"
   port                = var.health_check_port
-  request_path        = "/status"
+  request_path        = "/"
   check_interval_sec  = var.health_check_interval
   timeout_sec         = var.health_check_timeout
   healthy_threshold   = var.health_check_healthy_threshold

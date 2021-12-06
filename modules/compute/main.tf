@@ -81,10 +81,10 @@ resource "null_resource" "post_create_bastion_on_init" {
     google_compute_instance.bastion_instance
   ]
   connection {
-    host                = google_compute_address.bastion_ip[0].address
-    type                = "ssh"
-    user                = var.ssh_user
-    private_key         = file(var.ssh_private_key)
+    host        = google_compute_address.bastion_ip[0].address
+    type        = "ssh"
+    user        = var.ssh_user
+    private_key = file(var.ssh_private_key)
   }
   provisioner "file" {
     source      = var.ssh_private_key

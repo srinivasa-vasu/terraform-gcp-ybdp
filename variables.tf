@@ -113,7 +113,7 @@ variable "project" {
 
 variable "region" {
   description = "gcp region to deploy the services to"
-  default     = "us-west1"
+  default     = "asia-south1"
   type        = string
 }
 
@@ -126,7 +126,7 @@ variable "additional_regions" {
 variable "additional_regions_cidr" {
   description = "additional gcp regions to create in the vpc"
   type        = list(any)
-  default     = ["10.160.5.0/24", "10.160.6.0/24", "10.160.7.0/24"]
+  default     = ["10.160.5.0/24", "10.160.6.0/24", "10.160.7.0/24", "10.160.8.0/24"]
 }
 
 variable "credentials" {
@@ -173,4 +173,14 @@ variable "public_on" {
   description = "flag to determine default allow-all port access to the client ip"
   default     = false
   type        = bool
+}
+
+variable "img_name" {
+  description = "os image name"
+  type        = string
+}
+
+variable "img_project" {
+  description = "os image cloud project"
+  type        = string
 }

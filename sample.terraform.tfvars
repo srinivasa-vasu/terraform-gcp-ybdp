@@ -26,10 +26,10 @@ region = "asia-south1"
 
 # vpc inputs
 vpc_on = true
-# if `vpc_on` is false, then `vpc_network` should already exist 
+# if `vpc_on` is false, then `vpc_network` should already exist
 vpc_network = "ybdp"
 
-# bastion setting. # if the flag is not set, then this provisioning should be run from the google VPC network. 
+# bastion setting. # if the flag is not set, then this provisioning should be run from the google VPC network.
 # Running it from the local machine would fail without a bastion instance
 bastion_on = true
 
@@ -38,3 +38,7 @@ ha_on = true
 
 # unique identifier for the run. All the resources would have this identifier
 identifier = "yugabyte"
+
+# os image type
+img_name    = "ubuntu-2004-focal-v20220610"
+img_project = "ubuntu-os-cloud"

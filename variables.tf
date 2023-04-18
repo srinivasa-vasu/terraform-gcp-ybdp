@@ -184,3 +184,9 @@ variable "img_project" {
   description = "os image cloud project"
   type        = string
 }
+
+variable "instance_labels" {
+  description = "labels to be added to the instance(s)"
+  type        = map(string)
+  default     = {}
+}

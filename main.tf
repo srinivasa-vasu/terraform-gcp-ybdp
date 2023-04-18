@@ -124,4 +124,5 @@ module "compute" {
   license_key          = var.license_key
   hostname             = "${var.hostname}.${var.domain}"
   target_tags          = ["${local.tag}"]
+  instance_labels      = var.instance_labels
 }

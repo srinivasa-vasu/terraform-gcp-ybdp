@@ -81,7 +81,7 @@ resource "google_compute_firewall" "intra_svc" {
   network = data.google_compute_network.vpc_state.id
   allow {
     protocol = local.protocol
-    ports    = ["7100", "9100", "22", "11000", "12000", "13000", "9300", "54422"]
+    ports    = ["7100", "9100", "22", "11000", "12000", "13000", "9300", "54422", "18018", "14000"]
   }
   # target_tags   = compact(var.target_tags)
   source_ranges = [var.control_subnet_cidr, var.universe_subnet_cidr]

@@ -99,3 +99,9 @@ variable "target_tags" {
   default = []
   type    = list(any)
 }
+
+variable "instance_labels" {
+  description = "labels to be added to the instance(s)"
+  type        = map(string)
+  default     = {}
+}

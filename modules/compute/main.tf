@@ -27,10 +27,13 @@ resource "google_compute_instance" "instance" {
 
   boot_disk {
     initialize_params {
-      image = var.node_img
-      size  = var.disk_size
+      image  = var.node_img
+      size   = var.disk_size
+      labels = var.instance_labels
     }
   }
+
+  labels = var.instance_labels
 
   metadata = {
     sshKeys = "${var.ssh_user}:${file(var.ssh_public_key)}"
@@ -59,10 +62,13 @@ resource "google_compute_instance" "bastion_instance" {
 
   boot_disk {
     initialize_params {
-      image = var.node_img
-      size  = var.bastion_disk_size
+      image  = var.node_img
+      size   = var.bastion_disk_size
+      labels = var.instance_labels
     }
   }
+
+  labels = var.instance_labels
 
   metadata = {
     sshKeys = "${var.ssh_user}:${file(var.ssh_public_key)}"

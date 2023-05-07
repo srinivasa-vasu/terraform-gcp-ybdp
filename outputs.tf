@@ -15,7 +15,7 @@ output "main_replicated_instance" {
 }
 
 output "fallback_replicated_instance" {
-  value = var.ha_on ? "https://${module.fb_lb[0].address}:8800" : "NA"
+  value = var.ha_on ? "https://${module.lb_ha[0].address}:8800" : "NA"
 }
 
 output "bastion_instance" {
@@ -80,11 +80,11 @@ output "main_lb_address" {
 }
 
 output "fallback_lb_name" {
-  value = var.ha_on ? module.fb_lb[0].name : "NA"
+  value = var.ha_on ? module.lb_ha[0].name : "NA"
 }
 
 output "fallback_lb_address" {
-  value = var.ha_on ? module.fb_lb[0].address : "NA"
+  value = var.ha_on ? module.lb_ha[0].address : "NA"
 }
 
 # dns related

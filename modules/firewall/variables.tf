@@ -12,11 +12,13 @@ variable "vpc_nw" {
 }
 
 variable "bastion_on" {
-  type = bool
+  type    = bool
+  default = false
 }
 
 variable "public_on" {
-  type = bool
+  type    = bool
+  default = false
 }
 
 variable "target_tags" {
@@ -41,4 +43,11 @@ variable "ingress_cidr" {
 variable "airgap" {
   description = "flag to determine if the installation is airgapped"
   type        = bool
+  default     = false
+}
+
+variable "init" {
+  description = "flag to determine if the default firewall rules should be created"
+  type        = bool
+  default     = false
 }

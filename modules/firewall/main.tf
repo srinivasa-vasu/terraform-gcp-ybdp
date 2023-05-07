@@ -14,6 +14,7 @@ resource "google_compute_firewall" "web_svc" {
   }
   # target_tags   = compact(var.target_tags)
   source_ranges = [var.ingress_cidr, var.control_subnet_cidr, var.universe_subnet_cidr]
+  count         = var.init ? 1 : 0
 }
 
 # Rules for intra network comms
@@ -26,6 +27,7 @@ resource "google_compute_firewall" "intra_svc" {
   }
   # target_tags   = compact(var.target_tags)
   source_ranges = [var.control_subnet_cidr, var.universe_subnet_cidr]
+  count         = var.init ? 1 : 0
 }
 
 # ssh access to the bastion host, if enabled

@@ -75,7 +75,7 @@ module "lb" {
   ingress_cidr  = local.ingress
 }
 
-module "fb_lb" {
+module "lb_ha" {
   source        = "./modules/lb"
   identifier    = "${var.identifier}-fb"
   vpc_network   = module.network.network
@@ -94,7 +94,7 @@ module "dns" {
   dns_on      = var.dns_on
   identifier  = var.identifier
   domain      = var.domain
-  ip_to_dns   = var.ha_on ? [module.lb.address, module.fb_lb[0].address] : [module.lb.address]
+  ip_to_dns   = var.ha_on ? [module.lb.address, module.lb_ha[0].address] : [module.lb.address]
   hostname    = var.hostname
   zone        = var.zone
   airgap      = var.airgap
@@ -127,6 +127,7 @@ module "compute" {
   instance_labels      = var.instance_labels
 }
 
+# firewall related resources; creates all rules but airgap
 module "firewall" {
   source               = "./modules/firewall"
   identifier           = var.identifier
@@ -135,8 +136,20 @@ module "firewall" {
   control_subnet_cidr  = var.control_network_cidr
   universe_subnet_cidr = var.universe_network_cidr
   ingress_cidr         = local.ingress
-  airgap               = var.airgap
   bastion_on           = var.bastion_on
   public_on            = var.public_on
-  depends_on           = [module.network, module.compute]
+  init                 = true
+}
+
+# firewall related resources; creates airgap rules
+module "firewall_ag" {
+  source               = "./modules/firewall"
+  identifier           = var.identifier
+  vpc_nw               = module.network.network
+  target_tags          = ["${local.tag}", "${var.universe_tag}"]
+  control_subnet_cidr  = var.control_network_cidr
+  universe_subnet_cidr = var.universe_network_cidr
+  ingress_cidr         = local.ingress
+  airgap               = var.airgap
+  depends_on           = [module.compute]
 }

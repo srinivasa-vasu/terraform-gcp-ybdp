@@ -96,6 +96,10 @@ output "hosted_zone" {
   value = module.dns.hosted_zone
 }
 
+output "private_hosted_zone" {
+  value = module.dns.private_hosted_zone
+}
+
 output "main_replicated_console_dns" {
   value = module.dns.main_replicated_console_dns
 }

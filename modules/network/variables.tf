@@ -43,15 +43,7 @@ variable "ingress_cidr" {
   type = string
 }
 
-variable "bastion_on" {
-  type = bool
-}
-
 variable "target_tags" {
   description = "target tag for the universe & platform instances"
   type        = list(any)
-}
-
-variable "public_on" {
-  type = bool
 }

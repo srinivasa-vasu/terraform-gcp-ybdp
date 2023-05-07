@@ -28,3 +28,12 @@ variable "zone" {
   description = "zone name of the existing/new one"
   type        = string
 }
+
+variable "airgap" {
+  description = "flag to determine if the installation is airgapped"
+  type        = bool
+}
+
+variable "vpc_network" {
+  type = string
+}

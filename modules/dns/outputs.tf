@@ -6,6 +6,10 @@ output "hosted_zone" {
   value = google_dns_managed_zone.dns_zone.*.name
 }
 
+output "private_hosted_zone" {
+  value = google_dns_managed_zone.private_dns_zone.*.name
+}
+
 output "dns_zone_name_servers" {
   value = google_dns_managed_zone.dns_zone.*.name_servers
 }

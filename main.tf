@@ -21,7 +21,7 @@ provider "google-beta" {
 
 locals {
   tag     = "${var.identifier}-${var.control_name}"
-  ingress = "${chomp(data.http.localip.body)}/32"
+  ingress = "${chomp(data.http.localip.response_body)}/32"
   ports   = ["443", "8800", "9090"]
 }
 
@@ -32,7 +32,7 @@ data "google_compute_zones" "available" {
 # Workstation public ip to allow access to. It identies the IP where this gets executed and adds it to the
 # firewall rule in the firewall block
 data "http" "localip" {
-  url = "http://ipv4.icanhazip.com"
+  url = "https://ipv4.icanhazip.com"
   # url = "http://checkip.amazonaws.com"
 }
 
@@ -56,8 +56,6 @@ module "network" {
   control_name                    = var.control_name
   ingress_cidr                    = local.ingress
   target_tags                     = ["${local.tag}", "${var.universe_tag}"]
-  bastion_on                      = var.bastion_on
-  public_on                       = var.public_on
 }
 
 # Load balancer and related firewall resources
@@ -92,13 +90,15 @@ module "fb_lb" {
 
 # DNS zone related resources
 module "dns" {
-  source     = "./modules/dns"
-  dns_on     = var.dns_on
-  identifier = var.identifier
-  domain     = var.domain
-  ip_to_dns  = var.ha_on ? [module.lb.address, module.fb_lb[0].address] : [module.lb.address]
-  hostname   = var.hostname
-  zone       = var.zone
+  source      = "./modules/dns"
+  dns_on      = var.dns_on
+  identifier  = var.identifier
+  domain      = var.domain
+  ip_to_dns   = var.ha_on ? [module.lb.address, module.fb_lb[0].address] : [module.lb.address]
+  hostname    = var.hostname
+  zone        = var.zone
+  airgap      = var.airgap
+  vpc_network = module.network.network
 }
 
 # replicate and bastion compute related resources
@@ -125,4 +125,18 @@ module "compute" {
   hostname             = "${var.hostname}.${var.domain}"
   target_tags          = ["${local.tag}"]
   instance_labels      = var.instance_labels
+}
+
+module "firewall" {
+  source               = "./modules/firewall"
+  identifier           = var.identifier
+  vpc_nw               = module.network.network
+  target_tags          = ["${local.tag}", "${var.universe_tag}"]
+  control_subnet_cidr  = var.control_network_cidr
+  universe_subnet_cidr = var.universe_network_cidr
+  ingress_cidr         = local.ingress
+  airgap               = var.airgap
+  bastion_on           = var.bastion_on
+  public_on            = var.public_on
+  depends_on           = [module.network, module.compute]
 }

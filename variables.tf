@@ -185,6 +185,12 @@ variable "img_project" {
   type        = string
 }
 
+variable "airgap" {
+  description = "flag to determine if the installation is airgapped"
+  type        = bool
+  default     = false
+}
+
 variable "instance_labels" {
   description = "labels to be added to the instance(s)"
   type        = map(string)

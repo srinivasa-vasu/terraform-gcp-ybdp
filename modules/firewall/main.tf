@@ -26,7 +26,7 @@ resource "google_compute_firewall" "intra_svc" {
     ports    = ["7100", "9100", "22", "11000", "12000", "13000", "9300", "54422", "18018", "14000"]
   }
   # target_tags   = compact(var.target_tags)
-  source_ranges = [var.control_subnet_cidr, var.universe_subnet_cidr]
+  source_ranges = concat([var.control_subnet_cidr, var.universe_subnet_cidr], var.additional_universe_subnet_cidr)
   count         = var.init ? 1 : 0
 }
 
@@ -87,6 +87,6 @@ resource "google_compute_firewall" "egress_airgap_intra_svc" {
     ports    = ["7100", "9100", "22", "11000", "12000", "13000", "9300", "54422", "18018", "14000", "443"]
   }
   direction          = "EGRESS"
-  destination_ranges = [var.control_subnet_cidr, var.universe_subnet_cidr]
+  destination_ranges = concat([var.control_subnet_cidr, var.universe_subnet_cidr], var.additional_universe_subnet_cidr)
   count              = var.airgap ? 1 : 0
 }

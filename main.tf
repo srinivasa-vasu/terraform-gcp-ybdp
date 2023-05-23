@@ -129,27 +129,29 @@ module "compute" {
 
 # firewall related resources; creates all rules but airgap
 module "firewall" {
-  source               = "./modules/firewall"
-  identifier           = var.identifier
-  vpc_nw               = module.network.network
-  target_tags          = ["${local.tag}", "${var.universe_tag}"]
-  control_subnet_cidr  = var.control_network_cidr
-  universe_subnet_cidr = var.universe_network_cidr
-  ingress_cidr         = local.ingress
-  bastion_on           = var.bastion_on
-  public_on            = var.public_on
-  init                 = true
+  source                          = "./modules/firewall"
+  identifier                      = var.identifier
+  vpc_nw                          = module.network.network
+  target_tags                     = ["${local.tag}", "${var.universe_tag}"]
+  control_subnet_cidr             = var.control_network_cidr
+  universe_subnet_cidr            = var.universe_network_cidr
+  additional_universe_subnet_cidr = var.vpc_on ? var.additional_regions_cidr : list("")
+  ingress_cidr                    = local.ingress
+  bastion_on                      = var.bastion_on
+  public_on                       = var.public_on
+  init                            = true
 }
 
 # firewall related resources; creates airgap rules
 module "firewall_ag" {
-  source               = "./modules/firewall"
-  identifier           = var.identifier
-  vpc_nw               = module.network.network
-  target_tags          = ["${local.tag}", "${var.universe_tag}"]
-  control_subnet_cidr  = var.control_network_cidr
-  universe_subnet_cidr = var.universe_network_cidr
-  ingress_cidr         = local.ingress
-  airgap               = var.airgap
-  depends_on           = [module.compute]
+  source                          = "./modules/firewall"
+  identifier                      = var.identifier
+  vpc_nw                          = module.network.network
+  target_tags                     = ["${local.tag}", "${var.universe_tag}"]
+  control_subnet_cidr             = var.control_network_cidr
+  universe_subnet_cidr            = var.universe_network_cidr
+  additional_universe_subnet_cidr = var.vpc_on ? var.additional_regions_cidr : list("")
+  ingress_cidr                    = local.ingress
+  airgap                          = var.airgap
+  depends_on                      = [module.compute]
 }

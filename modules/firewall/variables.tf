@@ -51,3 +51,8 @@ variable "init" {
   type        = bool
   default     = false
 }
+
+variable "additional_universe_subnet_cidr" {
+  description = "cross region universe firewall cidrs"
+  type        = list(any)
+}

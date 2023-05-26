@@ -1,13 +1,13 @@
 output "domain_name" {
-  value = google_dns_managed_zone.dns_zone.*.dns_name
+  value = var.dns_on ? google_dns_managed_zone.dns_zone.*.dns_name : data.google_dns_managed_zone.dns_zone.*.dns_name
 }
 
 output "hosted_zone" {
-  value = google_dns_managed_zone.dns_zone.*.name
+  value = var.dns_on ? google_dns_managed_zone.dns_zone.*.name : data.google_dns_managed_zone.dns_zone.*.name
 }
 
 output "private_hosted_zone" {
-  value = google_dns_managed_zone.private_dns_zone.*.name
+  value = var.airgap ? google_dns_managed_zone.private_dns_zone.*.name : ["NA"]
 }
 
 output "dns_zone_name_servers" {

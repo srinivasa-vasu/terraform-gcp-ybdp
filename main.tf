@@ -64,28 +64,30 @@ module "lb" {
   # for_each = {
   #   for ic in range(var.replicated_instance_count) : ic => ic
   # }
-  source        = "./modules/lb"
-  identifier    = "${var.identifier}-main"
-  vpc_network   = module.network.network
-  ports         = local.ports
-  ports_forward = local.ports
-  target_tags   = ["${local.tag}", "node-1"]
-  instance      = var.replicated ? module.compute_replicated[0].instances[0].self_link : module.compute_installer[0].instances[0].self_link
-  health_check  = true
-  ingress_cidr  = local.ingress
+  source            = "./modules/lb"
+  identifier        = "${var.identifier}-main"
+  vpc_network       = module.network.network
+  ports             = local.ports
+  ports_forward     = local.ports
+  target_tags       = ["${local.tag}", "node-1"]
+  instance          = var.replicated ? module.compute_replicated[0].instances[0].self_link : module.compute_installer[0].instances[0].self_link
+  health_check      = true
+  health_check_port = var.replicated ? 8800 : 443
+  ingress_cidr      = local.ingress
 }
 
 module "lb_ha" {
-  source        = "./modules/lb"
-  identifier    = "${var.identifier}-fb"
-  vpc_network   = module.network.network
-  ports         = local.ports
-  ports_forward = local.ports
-  target_tags   = ["${local.tag}", "node-2"]
-  instance      = var.replicated ? module.compute_replicated[0].instances[1].self_link : module.compute_installer[0].instances[1].self_link
-  health_check  = true
-  ingress_cidr  = local.ingress
-  count         = var.ha_on ? 1 : 0
+  source            = "./modules/lb"
+  identifier        = "${var.identifier}-fb"
+  vpc_network       = module.network.network
+  ports             = local.ports
+  ports_forward     = local.ports
+  target_tags       = ["${local.tag}", "node-2"]
+  instance          = var.replicated ? module.compute_replicated[0].instances[1].self_link : module.compute_installer[0].instances[1].self_link
+  health_check      = true
+  health_check_port = var.replicated ? 8800 : 443
+  ingress_cidr      = local.ingress
+  count             = var.ha_on ? 1 : 0
 }
 
 # DNS zone related resources

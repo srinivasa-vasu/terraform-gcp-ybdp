@@ -11,7 +11,7 @@ test -f ${user_home}/yba_installer* || { wget ${download_path} -O yba-installer.
 cd ${user_home}/yba_installer*
 
 # Define the port to check
-port=9000
+port=443
 
 # Send a request to the port and check the response
 response=$(curl -sSf http://localhost:$port)
@@ -30,7 +30,6 @@ if [ $? -ne 0 ]; then
   sudo cp ${user_home}/domain.crt /opt/yugabyte/data/yba-installer/certs/server.crt
 
   sudo ./yba-ctl install -l ${user_home}/license_key -s cpu,memory,disk-availability -f
-
 else
   echo "Port $port is already in use, bouncing the instances with the updates"
   sed -i 's/server_cert_path:.*/server_cert_path: \"${e_user_home}\/domain.crt\"/g' ${default_config_path}

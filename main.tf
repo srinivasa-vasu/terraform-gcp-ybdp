@@ -22,7 +22,7 @@ provider "google-beta" {
 locals {
   tag     = "${var.identifier}-${var.control_name}"
   ingress = "${chomp(data.http.localip.response_body)}/32"
-  ports   = ["443", "8800", "9090"]
+  ports   = var.replicated ? ["443", "8800", "9090"] : ["443", "9090"]
 }
 
 data "google_compute_zones" "available" {
@@ -70,7 +70,7 @@ module "lb" {
   ports         = local.ports
   ports_forward = local.ports
   target_tags   = ["${local.tag}", "node-1"]
-  instance      = module.compute.instances[0].self_link
+  instance      = var.replicated ? module.compute_replicated[0].instances[0].self_link : module.compute_installer[0].instances[0].self_link
   health_check  = true
   ingress_cidr  = local.ingress
 }
@@ -82,7 +82,7 @@ module "lb_ha" {
   ports         = local.ports
   ports_forward = local.ports
   target_tags   = ["${local.tag}", "node-2"]
-  instance      = module.compute.instances[1].self_link
+  instance      = var.replicated ? module.compute_replicated[0].instances[1].self_link : module.compute_installer[0].instances[1].self_link
   health_check  = true
   ingress_cidr  = local.ingress
   count         = var.ha_on ? 1 : 0
@@ -102,29 +102,56 @@ module "dns" {
 }
 
 # replicate and bastion compute related resources
-module "compute" {
-  source               = "./modules/compute"
-  identifier           = var.identifier
-  instance_count       = var.ha_on ? 2 : 1
-  node_type            = var.node_type
-  node_img             = data.google_compute_image.instance_image.self_link
-  disk_size            = var.disk_size
-  bastion_on           = var.bastion_on
-  bastion_node_type    = var.bastion_node_type
-  bastion_disk_size    = var.bastion_disk_size
-  zones                = data.google_compute_zones.available.names
-  vpc_nw               = module.network.network
-  vpc_nw_subnet        = module.network.control_subnet
-  ingress_cidr         = local.ingress
-  ssh_user             = var.ssh_user
-  ssh_public_key       = var.ssh_public_key
-  ssh_private_key      = var.ssh_private_key
-  replicated_host_cert = var.replicated_host_cert
-  replicated_host_key  = var.replicated_host_key
-  license_key          = var.license_key
-  hostname             = "${var.hostname}.${var.domain}"
-  target_tags          = ["${local.tag}"]
-  instance_labels      = var.instance_labels
+module "compute_replicated" {
+  source            = "./modules/compute_replicated"
+  identifier        = var.identifier
+  instance_count    = var.ha_on ? 2 : 1
+  node_type         = var.node_type
+  node_img          = data.google_compute_image.instance_image.self_link
+  disk_size         = var.disk_size
+  bastion_on        = var.bastion_on
+  bastion_node_type = var.bastion_node_type
+  bastion_disk_size = var.bastion_disk_size
+  zones             = data.google_compute_zones.available.names
+  vpc_nw            = module.network.network
+  vpc_nw_subnet     = module.network.control_subnet
+  ingress_cidr      = local.ingress
+  ssh_user          = var.ssh_user
+  ssh_public_key    = var.ssh_public_key
+  ssh_private_key   = var.ssh_private_key
+  host_cert         = var.host_cert
+  host_key          = var.host_key
+  license_key       = var.license_key
+  hostname          = "${var.hostname}.${var.domain}"
+  target_tags       = ["${local.tag}"]
+  instance_labels   = var.instance_labels
+  count             = var.replicated ? 1 : 0
+}
+
+module "compute_installer" {
+  source            = "./modules/compute_installer"
+  identifier        = var.identifier
+  instance_count    = var.ha_on ? 2 : 1
+  node_type         = var.node_type
+  node_img          = data.google_compute_image.instance_image.self_link
+  disk_size         = var.disk_size
+  bastion_on        = var.bastion_on
+  bastion_node_type = var.bastion_node_type
+  bastion_disk_size = var.bastion_disk_size
+  zones             = data.google_compute_zones.available.names
+  vpc_nw            = module.network.network
+  vpc_nw_subnet     = module.network.control_subnet
+  ingress_cidr      = local.ingress
+  ssh_user          = var.ssh_user
+  ssh_public_key    = var.ssh_public_key
+  ssh_private_key   = var.ssh_private_key
+  host_cert         = var.host_cert
+  host_key          = var.host_key
+  license_key       = var.license_key
+  hostname          = "${var.hostname}.${var.domain}"
+  target_tags       = ["${local.tag}"]
+  instance_labels   = var.instance_labels
+  count             = var.installer ? 1 : 0
 }
 
 # firewall related resources; creates all rules but airgap
@@ -153,5 +180,5 @@ module "firewall_ag" {
   additional_universe_subnet_cidr = var.vpc_on ? var.additional_regions_cidr : list("")
   ingress_cidr                    = local.ingress
   airgap                          = var.airgap
-  depends_on                      = [module.compute]
+  depends_on                      = [module.compute_replicated, module.compute_installer]
 }

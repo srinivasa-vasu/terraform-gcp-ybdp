@@ -4,7 +4,7 @@ variable "identifier" {
 
 variable "local_identifier" {
   type    = string
-  default = "replicated"
+  default = "installer"
 }
 
 variable "instance_count" {
@@ -75,12 +75,12 @@ variable "ssh_user" {
   type        = string
 }
 
-variable "replicated_host_key" {
+variable "host_key" {
   description = "hostname private key to upload to the replicated instance"
   type        = string
 }
 
-variable "replicated_host_cert" {
+variable "host_cert" {
   description = "hostname cert to upload to the replicated instance"
   type        = string
 }
@@ -104,4 +104,10 @@ variable "instance_labels" {
   description = "labels to be added to the instance(s)"
   type        = map(string)
   default     = {}
+}
+
+variable "image_version" {
+  description = "version of the image to be used"
+  type        = string
+  default     = "2.18"
 }

@@ -31,12 +31,12 @@ variable "ssh_user" {
   type        = string
 }
 
-variable "replicated_host_key" {
+variable "host_key" {
   description = "hostname private key to upload to the replicated instance"
   type        = string
 }
 
-variable "replicated_host_cert" {
+variable "host_cert" {
   description = "hostname cert to upload to the replicated instance"
   type        = string
 }
@@ -195,4 +195,16 @@ variable "instance_labels" {
   description = "labels to be added to the instance(s)"
   type        = map(string)
   default     = {}
+}
+
+variable "replicated" {
+  description = "flag to determine if replicated based workflow should be used"
+  type        = bool
+  default     = true
+}
+
+variable "installer" {
+  description = "flag to determine if installer based workflow should be used"
+  type        = bool
+  default     = false
 }

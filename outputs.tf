@@ -10,25 +10,25 @@ output "ssh_key" {
 }
 
 # instance related
-output "main_replicated_instance" {
-  value = "https://${module.lb.address}:8800"
+output "main_yba_instance" {
+  value = "https://${module.lb.address}:443"
 }
 
-output "fallback_replicated_instance" {
-  value = var.ha_on ? "https://${module.lb_ha[0].address}:8800" : "NA"
+output "fallback_yba_instance" {
+  value = var.ha_on ? "https://${module.lb_ha[0].address}" : "NA"
 }
 
 output "bastion_instance" {
-  value = module.compute.bastion_instance
+  value = var.replicated ? module.compute_replicated[0].bastion_instance : module.compute_installer[0].bastion_instance
 }
 
-output "replicated_instances" {
-  value = module.compute.replicated_instances
+output "yba_instances" {
+  value = var.replicated ? module.compute_replicated[0].replicated_instances : module.compute_installer[0].installer_instances
 }
 
-output "console_password" {
+output "password" {
   sensitive = true
-  value     = module.compute.console_password
+  value     = var.replicated ? module.compute_replicated[0].password : module.compute_installer[0].password
 }
 
 # vpc related
@@ -100,10 +100,10 @@ output "private_hosted_zone" {
   value = module.dns.private_hosted_zone
 }
 
-output "main_replicated_console_dns" {
-  value = module.dns.main_replicated_console_dns
+output "main_yba_console_dns" {
+  value = module.dns.main_yba_console_dns
 }
 
-output "fallback_replicated_console_dns" {
-  value = module.dns.fb_replicated_console_dns
+output "fallback_yba_console_dns" {
+  value = module.dns.fb_yba_console_dns
 }

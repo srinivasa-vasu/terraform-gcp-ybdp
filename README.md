@@ -26,7 +26,7 @@ $ cd terraform-gcp-ybdp
 
 * Create `terraform.tfvars` file with the following info populated (or update `sample.terraform.tfvars` file appropriately and rename it to `terraform.tfvars`)
 
-```   
+```
 -----------------------------------------------mandatory inputs-----------------------------------------------
 # GCP project info
 project         = "# gcp project id"
@@ -38,8 +38,8 @@ ssh_private_key = "# ssh private key file path"
 ssh_public_key  = "# ssh public key file path"
 ssh_user        = "# ssh user name"
 # key and cert for the replicated hostname; could be self-signed or ca signed
-replicated_host_key     = "# replicated instance host private key path"
-replicated_host_cert    = "# replicated instance host cert path"
+host_key     = "# replicated instance host private key path"
+host_cert    = "# replicated instance host cert path"
 license_key             = "# platform license key path"
 hostname                = "# replicated instance host name; this will be suffixed with the `domain` name; just mention the hostname without the domain"
 

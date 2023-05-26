@@ -4,19 +4,29 @@ locals {
 }
 
 data "local_file" "secure_cert" {
-  filename = var.replicated_host_cert
+  filename = var.host_cert
+}
+
+data "template_file" "replicated_install" {
+  template = file("scripts/replicated.tpl")
+
+  vars = {
+    user_home = "/home/${var.ssh_user}"
+    password  = random_password.password.result
+    hostname  = var.hostname
+  }
 }
 
 resource "random_password" "password" {
-  length           = 16
+  length           = 40
   special          = true
   upper            = true
   lower            = true
   numeric          = true
-  override_special = "_%@!"
+  override_special = "_=-@%"
 }
 
-# Replicated instance resource; can have more than 1 instance for HA; set `replicated_instance_count` variable
+# yba instance resource; can have more than 1 instance for HA; set `installer_instance_count` variable
 # appropriately
 resource "google_compute_instance" "instance" {
   count        = var.instance_count
@@ -108,7 +118,7 @@ resource "null_resource" "post_create_bastion_on_init" {
   }
 }
 
-resource "null_resource" "post_create_bastion_on_cert" {
+resource "null_resource" "post_create_bastion_on_configure" {
   count = var.bastion_on ? var.instance_count : 0
   depends_on = [
     google_compute_instance.bastion_instance,
@@ -130,68 +140,25 @@ resource "null_resource" "post_create_bastion_on_cert" {
   }
 
   provisioner "file" {
-    source      = var.replicated_host_key
+    source      = var.host_key
     destination = "/home/${var.ssh_user}/domain.pem"
   }
   provisioner "file" {
-    source      = var.replicated_host_cert
+    source      = var.host_cert
     destination = "/home/${var.ssh_user}/domain.crt"
   }
-  provisioner "remote-exec" {
-    inline = [
-      # update the hostname key and cert
-      # wait for ~3+ mins for the replicated instance to be up and running
-      # "sudo mv ~/{key,cert} /etc/replicated/",
-      "i=1; while [ $i -le 20 ]; do nc -vz localhost 9873 >/dev/null 2>&1; test $? -eq 0 && { sudo mv ~/domain.pem ~/domain.crt /etc/replicated/; replicated console cert set ${var.hostname} /etc/replicated/domain.pem /etc/replicated/domain.crt; touch ~/cert_upload.completed; break; } || sleep $i; i=$(expr $i + 1); done",
-      "test ! -f ~/cert_upload.completed && echo 'Cert upload has failed' || echo 'Cert uploaded successfully'"
-    ]
-  }
-  provisioner "remote-exec" {
-    inline = [
-      # clean-up job; this has to run irrespective of the other jobs
-      "rm ~/cert_upload.completed",
-      "echo 'Garbage collection done!'"
-    ]
-  }
-}
-
-resource "null_resource" "post_create_bastion_on_auth" {
-  count = var.bastion_on ? var.instance_count : 0
-  depends_on = [
-    null_resource.post_create_bastion_on_cert
-  ]
-
-  connection {
-    bastion_host        = google_compute_address.bastion_ip[0].address # single bastion
-    bastion_private_key = file(var.ssh_private_key)
-    bastion_user        = var.ssh_user
-    host                = google_compute_instance.instance[count.index].network_interface.0.network_ip
-    type                = "ssh"
-    user                = var.ssh_user
-    private_key         = file(var.ssh_private_key)
-  }
-
   provisioner "file" {
     source      = var.license_key
-    destination = "/home/${var.ssh_user}/license"
+    destination = "/home/${var.ssh_user}/license_key"
   }
   provisioner "remote-exec" {
     inline = [
-      "echo '{\"Password\": {\"Password\": \"${random_password.password.result}\"}}' | replicatedctl console-auth import",
-      "replicatedctl license-load < ~/license"
-      # "replicatedctl preflight run",
-    ]
-  }
-  provisioner "remote-exec" {
-    inline = [
-      # clean-up job; this has to run irrespective of the other jobs
-      "rm ~/license",
-      "echo 'Garbage collection done!'"
+      data.template_file.replicated_install.rendered
     ]
   }
 }
 
-resource "null_resource" "post_create_bastion_off_cert" {
+resource "null_resource" "post_create_bastion_off_configure" {
   count = var.bastion_on ? 0 : var.instance_count
   depends_on = [
     google_compute_instance.instance
@@ -209,59 +176,20 @@ resource "null_resource" "post_create_bastion_off_cert" {
   }
 
   provisioner "file" {
-    source      = var.replicated_host_key
+    source      = var.host_key
     destination = "/home/${var.ssh_user}/domain.pem"
   }
   provisioner "file" {
-    source      = var.replicated_host_cert
+    source      = var.host_cert
     destination = "/home/${var.ssh_user}/domain.crt"
   }
-  provisioner "remote-exec" {
-    inline = [
-      # update the hostname key and cert
-      # wait for ~3+ mins for the replicated instance to be up and running
-      "i=1; while [ $i -le 20 ]; do nc -vz localhost 9873 >/dev/null 2>&1; test $? -eq 0 && { sudo mv ~/domain.pem ~/domain.crt /etc/replicated/; replicated console cert set ${var.hostname} /etc/replicated/domain.pem /etc/replicated/domain.crt; touch ~/cert_upload.completed; break; } || sleep $i; i=$(expr $i + 1); done",
-      "test ! -f ~/cert_upload.completed && echo 'Cert upload has failed' || echo 'Cert uploaded successfully'"
-    ]
-  }
-  provisioner "remote-exec" {
-    inline = [
-      # clean-up job; this has to run irrespective of the other jobs
-      "rm ~/cert_upload.completed",
-      "echo 'Garbage collection done!'"
-    ]
-  }
-}
-
-resource "null_resource" "post_create_bastion_off_auth" {
-  count = var.bastion_on ? 0 : var.instance_count
-  depends_on = [
-    null_resource.post_create_bastion_off_cert
-  ]
-
-  connection {
-    host        = google_compute_instance.instance[count.index].network_interface.0.network_ip
-    type        = "ssh"
-    user        = var.ssh_user
-    private_key = file(var.ssh_private_key)
-  }
-
   provisioner "file" {
     source      = var.license_key
-    destination = "/home/${var.ssh_user}/license"
+    destination = "/home/${var.ssh_user}/license_key"
   }
   provisioner "remote-exec" {
     inline = [
-      "echo '{\"Password\": {\"Password\": \"${random_password.password.result}\"}}' | replicatedctl console-auth import",
-      "replicatedctl license-load < ~/license"
-      # "replicatedctl preflight run",
-    ]
-  }
-  provisioner "remote-exec" {
-    inline = [
-      # clean-up job; this has to run irrespective of the other jobs
-      "rm ~/license",
-      "echo 'Garbage collection done!'"
+      data.template_file.replicated_install.rendered
     ]
   }
 }

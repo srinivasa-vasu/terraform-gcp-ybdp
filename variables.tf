@@ -46,6 +46,16 @@ variable "license_key" {
   type        = string
 }
 
+variable "replicated_license_key" {
+  description = "license key to activate the yugabyte platform"
+  type        = string
+}
+
+variable "installer_license_key" {
+  description = "license key to activate the yugabyte platform"
+  type        = string
+}
+
 variable "hostname" {
   description = "hostname without the domain name"
   type        = string

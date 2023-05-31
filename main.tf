@@ -123,7 +123,7 @@ module "compute_replicated" {
   ssh_private_key   = var.ssh_private_key
   host_cert         = var.host_cert
   host_key          = var.host_key
-  license_key       = var.license_key
+  license_key       = var.replicated ? var.replicated_license_key : var.installer_license_key
   hostname          = "${var.hostname}.${var.domain}"
   target_tags       = ["${local.tag}"]
   instance_labels   = var.instance_labels
@@ -149,7 +149,7 @@ module "compute_installer" {
   ssh_private_key   = var.ssh_private_key
   host_cert         = var.host_cert
   host_key          = var.host_key
-  license_key       = var.license_key
+  license_key       = var.replicated ? var.replicated_license_key : var.installer_license_key
   hostname          = "${var.hostname}.${var.domain}"
   target_tags       = ["${local.tag}"]
   instance_labels   = var.instance_labels

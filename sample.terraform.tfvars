@@ -25,6 +25,9 @@ dns_on = false
 # The region name where the nodes should be spawned.
 region = "asia-south1"
 
+additional_regions      = ["asia-southeast1", "asia-southeast2", "asia-east1", "asia-south2"]
+additional_regions_cidr = ["10.160.8.0/24"]
+
 # vpc inputs
 vpc_on = true
 # if `vpc_on` is false, then `vpc_network` should already exist
@@ -34,8 +37,11 @@ vpc_network = "ybdp"
 # Running it from the local machine would fail without a bastion instance
 bastion_on = true
 
+# to allow all port access to this region (for dev/test) for the local workstation
+public_on = true
+
 # flag to determine ha for the platform
-ha_on = true
+ha_on = false
 
 # unique identifier for the run. All the resources would have this identifier
 identifier = "yugabyte"
@@ -52,3 +58,6 @@ installer = false
 # os image type
 img_name    = "ubuntu-2004-focal-v20220610"
 img_project = "ubuntu-os-cloud"
+
+# instance tags
+instance_labels = { "yb_owner" : "srini", "yb_dept" : "fe", "yb_task" : "poc" }

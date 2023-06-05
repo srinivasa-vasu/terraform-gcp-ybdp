@@ -1,7 +1,7 @@
 # GCP project info
 project      = "yb"
 control_name = "dev"
-credentials  = "/opt/creds.json"
+credentials  = "/opt/keys/creds.json"
 
 # ssh keys to connect to the bastion and replicated instances
 ssh_private_key = "/opt/yb"
@@ -10,8 +10,8 @@ ssh_user        = "ubuntu"
 # key and cert for the replicated hostname; could be self-signed or ca signed
 host_key               = "/opt/host_domain/key"
 host_cert              = "/opt/host_domain/cert"
-replicated_license_key = "opt/platform/portal.rli"
-installer_license_key  = "opt/platform/portal.rli"
+replicated_license_key = "/opt/keys/replicated.rli"
+installer_license_key  = "/opt/keys/installer.lic"
 hostname               = "platformops"
 
 # domain inputs

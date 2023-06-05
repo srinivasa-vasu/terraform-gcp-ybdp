@@ -44,6 +44,7 @@ variable "host_cert" {
 variable "license_key" {
   description = "license key to activate the yugabyte platform"
   type        = string
+  default     = null
 }
 
 variable "replicated_license_key" {

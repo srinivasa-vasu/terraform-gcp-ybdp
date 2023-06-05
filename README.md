@@ -40,7 +40,8 @@ ssh_user        = "# ssh user name"
 # key and cert for the replicated hostname; could be self-signed or ca signed
 host_key     = "# replicated instance host private key path"
 host_cert    = "# replicated instance host cert path"
-license_key             = "# platform license key path"
+replicated_license_key = "# replicated license key path if `replicated` is enabled"
+installer_license_key  = "# installer license key path if `installer` is enabled"
 hostname                = "# replicated instance host name; this will be suffixed with the `domain` name; just mention the hostname without the domain"
 
 # domain inputs
@@ -48,7 +49,6 @@ zone   = "# name of the existing/new zone"
 domain = "# domain name like nip.io"
 -----------------------------------------------mandatory inputs-----------------------------------------------
 dns_on = "# if true, would create a new managed hosted zone"
-
 
 region = "# region name where the node(s) should be spawned"
 
@@ -62,6 +62,15 @@ bastion_on   = "# flag to spawn host. set to 'true' if the access to ybdp is thr
 ha_on = "# flag to determine ha for the platform"
 
 identifier  = "# unique identifier for the run. All the resources would have this identifier"
+
+# airgap config
+airgap = false
+
+# replicated provisioner
+replicated = true
+
+# yba installer
+installer = false
 ```
 
 

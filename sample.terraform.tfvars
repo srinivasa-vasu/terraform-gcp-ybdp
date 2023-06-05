@@ -56,8 +56,7 @@ replicated = true
 installer = false
 
 # os image type
-img_name    = "ubuntu-2004-focal-v20220610"
-img_project = "ubuntu-os-cloud"
+image_type = "almalinux8"
 
 # instance tags
 instance_labels = { "yb_owner" : "srini", "yb_dept" : "fe", "yb_task" : "poc" }

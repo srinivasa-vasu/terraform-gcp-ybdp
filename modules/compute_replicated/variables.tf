@@ -17,9 +17,10 @@ variable "node_type" {
   type        = string
 }
 
-variable "node_img" {
-  description = "node image to be used"
+variable "image_type" {
+  description = "os distribution to use"
   type        = string
+  default     = "almalinux8"
 }
 
 variable "disk_size" {

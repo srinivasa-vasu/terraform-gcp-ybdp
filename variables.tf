@@ -11,11 +11,6 @@ variable "bastion_on" {
   type        = bool
 }
 
-#variable "machine_image" {
-#  description = "name of the machine image to create the instance from"
-#  type        = string
-#}
-
 variable "ssh_private_key" {
   description = "private key to connect to the bastion/replicated instance"
   type        = string
@@ -186,14 +181,10 @@ variable "public_on" {
   type        = bool
 }
 
-variable "img_name" {
-  description = "os image name"
+variable "image_type" {
+  description = "os distribution to use"
   type        = string
-}
-
-variable "img_project" {
-  description = "os image cloud project"
-  type        = string
+  default     = "almalinux8"
 }
 
 variable "airgap" {

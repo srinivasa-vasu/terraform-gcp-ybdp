@@ -36,11 +36,11 @@ data "http" "localip" {
   # url = "http://checkip.amazonaws.com"
 }
 
-data "google_compute_image" "instance_image" {
-  # family  = "ubuntu-1804-lts"
-  name    = var.img_name
-  project = var.img_project
-}
+# data "google_compute_image" "instance_image" {
+#   # family  = "ubuntu-1804-lts"
+#   name    = var.img_name
+#   project = var.img_project
+# }
 
 # VPC network and compute forewall related resources
 module "network" {
@@ -109,7 +109,7 @@ module "compute_replicated" {
   identifier        = var.identifier
   instance_count    = var.ha_on ? 2 : 1
   node_type         = var.node_type
-  node_img          = data.google_compute_image.instance_image.self_link
+  image_type        = var.image_type
   disk_size         = var.disk_size
   bastion_on        = var.bastion_on
   bastion_node_type = var.bastion_node_type
@@ -135,7 +135,7 @@ module "compute_installer" {
   identifier        = var.identifier
   instance_count    = var.ha_on ? 2 : 1
   node_type         = var.node_type
-  node_img          = data.google_compute_image.instance_image.self_link
+  image_type        = var.image_type
   disk_size         = var.disk_size
   bastion_on        = var.bastion_on
   bastion_node_type = var.bastion_node_type

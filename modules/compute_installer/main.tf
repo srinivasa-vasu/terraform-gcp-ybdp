@@ -2,7 +2,7 @@ locals {
   name         = "${var.identifier}-${var.local_identifier}"
   bastion_name = "${var.identifier}-bastion"
 
-  image_list = [
+  yba_image_list = [
     {
       "version" = "2.18"
       "path"    = "https://downloads.yugabyte.com/releases/2.18.0.0/yba_installer_full-2.18.0.0-b65-linux-x86_64.tar.gz"
@@ -12,11 +12,66 @@ locals {
       "path"    = "https://downloads.yugabyte.com/releases/2.17.3.0/yba_installer_full-2.17.3.0-b152-linux-x86_64.tar.gz"
     }
   ]
-  selected_image = lookup({ for val in local.image_list :
-    0 => val if val.version == var.image_version }, 0,
+  yba_selected_image = lookup({ for val in local.yba_image_list :
+    0 => val if val.version == var.yba_image_version }, 0,
     {
       "version" = "2.18"
       "path"    = "https://downloads.yugabyte.com/releases/2.18.0.0/yba_installer_full-2.18.0.0-b65-linux-x86_64.tar.gz"
+  })
+
+  image_list = [
+    {
+      "type" = "ubuntu18"
+      "path" = "ubuntu-os-cloud/ubuntu-1804-lts"
+      "cmd"  = "apt-get"
+    },
+    {
+      "type" = "ubuntu20"
+      "path" = "ubuntu-os-cloud/ubuntu-2004-lts"
+      "cmd"  = "apt-get"
+    },
+    {
+      "type" = "ubuntu22"
+      "path" = "ubuntu-os-cloud/ubuntu-2204-lts"
+      "cmd"  = "apt-get"
+    },
+    {
+      "type" = "centos7"
+      "path" = "centos-cloud/centos-7"
+      "cmd"  = "yum"
+    },
+    {
+      "type" = "almalinux8"
+      "path" = "almalinux-cloud/almalinux-8"
+      "cmd"  = "yum"
+    },
+    {
+      "type" = "almalinux9"
+      "path" = "almalinux-cloud/almalinux-9"
+      "cmd"  = "yum"
+    },
+    {
+      "type" = "rhel8"
+      "path" = "rhel-cloud/rhel-8"
+      "cmd"  = "yum"
+    },
+    {
+      "type" = "rhel9"
+      "path" = "rhel-cloud/rhel-9"
+      "cmd"  = "yum"
+    },
+    {
+      "type" = "cos"
+      "path" = "cos-cloud/cos-stable"
+      "cmd"  = "yum"
+    }
+  ]
+  selected_image = lookup({ for val in local.image_list :
+    0 => val if val.type == var.image_type }, 0,
+    {
+      "type" = "almalinux8"
+      "path" = "almalinux-cloud/almalinux-8"
+      "cmd"  = "yum"
   })
 
 }
@@ -29,11 +84,12 @@ data "template_file" "installer_configure" {
   template = file("scripts/installer.tpl")
 
   vars = {
-    download_path       = local.selected_image.path
+    download_path       = local.yba_selected_image.path
     user_home           = "/home/${var.ssh_user}"
     e_user_home         = replace("/home/${var.ssh_user}", "/", "\\/")
     default_config_path = "/opt/yba-ctl/yba-ctl.yml"
     password            = random_password.password.result
+    cmd                 = local.selected_image.cmd
   }
 }
 
@@ -57,7 +113,7 @@ resource "google_compute_instance" "instance" {
 
   boot_disk {
     initialize_params {
-      image  = var.node_img
+      image  = local.selected_image.path
       size   = var.disk_size
       labels = var.instance_labels
     }
@@ -88,7 +144,7 @@ resource "google_compute_instance" "bastion_instance" {
 
   boot_disk {
     initialize_params {
-      image  = var.node_img
+      image  = local.selected_image.path
       size   = var.bastion_disk_size
       labels = var.instance_labels
     }

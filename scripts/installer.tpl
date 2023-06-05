@@ -2,7 +2,7 @@
 
 set -x
 
-sudo apt-get install -y wget || true
+sudo ${cmd} install -y wget || true
 
 cd ${user_home}
 

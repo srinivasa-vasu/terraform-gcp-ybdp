@@ -1,6 +1,51 @@
 locals {
   name         = "${var.identifier}-${var.local_identifier}"
   bastion_name = "${var.identifier}-bastion"
+
+  image_list = [
+    {
+      "type" = "ubuntu18"
+      "path" = "ubuntu-os-cloud/ubuntu-1804-lts"
+    },
+    {
+      "type" = "ubuntu20"
+      "path" = "ubuntu-os-cloud/ubuntu-2004-lts"
+    },
+    {
+      "type" = "ubuntu22"
+      "path" = "ubuntu-os-cloud/ubuntu-2204-lts"
+    },
+    {
+      "type" = "centos7"
+      "path" = "centos-cloud/centos-7"
+    },
+    {
+      "type" = "almalinux8"
+      "path" = "almalinux-cloud/almalinux-8"
+    },
+    {
+      "type" = "almalinux9"
+      "path" = "almalinux-cloud/almalinux-9"
+    },
+    {
+      "type" = "rhel8"
+      "path" = "rhel-cloud/rhel-8"
+    },
+    {
+      "type" = "rhel9"
+      "path" = "rhel-cloud/rhel-9"
+    },
+    {
+      "type" = "cos"
+      "path" = "cos-cloud/cos-stable"
+    }
+  ]
+  selected_image = lookup({ for val in local.image_list :
+    0 => val if val.type == var.image_type }, 0,
+    {
+      "type" = "almalinux8"
+      "path" = "almalinux-cloud/almalinux-8"
+  })
 }
 
 data "local_file" "secure_cert" {
@@ -37,7 +82,7 @@ resource "google_compute_instance" "instance" {
 
   boot_disk {
     initialize_params {
-      image  = var.node_img
+      image  = local.selected_image.path
       size   = var.disk_size
       labels = var.instance_labels
     }
@@ -72,7 +117,7 @@ resource "google_compute_instance" "bastion_instance" {
 
   boot_disk {
     initialize_params {
-      image  = var.node_img
+      image  = local.selected_image.path
       size   = var.bastion_disk_size
       labels = var.instance_labels
     }

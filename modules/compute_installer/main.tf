@@ -5,18 +5,18 @@ locals {
   yba_image_list = [
     {
       "version" = "2.18"
-      "path"    = "https://downloads.yugabyte.com/releases/2.18.0.0/yba_installer_full-2.18.0.0-b65-linux-x86_64.tar.gz"
+      "path"    = "https://downloads.yugabyte.com/releases/2.18.1.0/yba_installer_full-2.18.1.0-b84-linux-x86_64.tar.gz"
     },
     {
-      "version" = "2.17"
-      "path"    = "https://downloads.yugabyte.com/releases/2.17.3.0/yba_installer_full-2.17.3.0-b152-linux-x86_64.tar.gz"
+      "version" = "2.19"
+      "path"    = "https://downloads.yugabyte.com/releases/2.19.0.0/yba_installer_full-2.19.0.0-b190-linux-x86_64.tar.gz"
     }
   ]
   yba_selected_image = lookup({ for val in local.yba_image_list :
     0 => val if val.version == var.yba_image_version }, 0,
     {
       "version" = "2.18"
-      "path"    = "https://downloads.yugabyte.com/releases/2.18.0.0/yba_installer_full-2.18.0.0-b65-linux-x86_64.tar.gz"
+      "path"    = "https://downloads.yugabyte.com/releases/2.18.1.0/yba_installer_full-2.18.1.0-b84-linux-x86_64.tar.gz"
   })
 
   image_list = [

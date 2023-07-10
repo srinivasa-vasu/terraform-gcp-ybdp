@@ -2,7 +2,7 @@
 
 set -x
 
-sudo ${cmd} install -y wget || true
+sudo ${cmd} install -y wget python3 || true
 
 cd ${user_home}
 

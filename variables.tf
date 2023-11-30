@@ -210,3 +210,15 @@ variable "installer" {
   type        = bool
   default     = false
 }
+
+variable "yba_image_version" {
+  description = "version of the image to be used"
+  type        = string
+  default     = "2.20"
+}
+
+variable "bastion_image_type" {
+  description = "os distribution to use"
+  type        = string
+  default     = "almalinux8"
+}

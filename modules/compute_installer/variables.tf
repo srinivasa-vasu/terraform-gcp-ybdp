@@ -110,5 +110,9 @@ variable "instance_labels" {
 variable "yba_image_version" {
   description = "version of the image to be used"
   type        = string
-  default     = "2.18"
+}
+
+variable "bastion_image_type" {
+  description = "os distribution to use"
+  type        = string
 }

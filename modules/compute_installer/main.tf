@@ -1,25 +1,31 @@
 locals {
   name         = "${var.identifier}-${var.local_identifier}"
   bastion_name = "${var.identifier}-bastion"
+  yba_base_url = "https://downloads.yugabyte.com/releases"
 
   yba_image_list = [
     {
+      "version" = "2.20"
+      "path"    = "${local.yba_base_url}/2.20.0.0/yba_installer_full-2.20.0.0-b76-linux-x86_64.tar.gz"
+    },
+    {
       "version" = "2.18"
-      "path"    = "https://downloads.yugabyte.com/releases/2.18.1.0/yba_installer_full-2.18.1.0-b84-linux-x86_64.tar.gz"
+      "path"    = "${local.yba_base_url}/2.18.4.0/yba_installer_full-2.18.4.0-b52-linux-x86_64.tar.gz"
     },
     {
       "version" = "2.19"
-      "path"    = "https://downloads.yugabyte.com/releases/2.19.0.0/yba_installer_full-2.19.0.0-b190-linux-x86_64.tar.gz"
+      "path"    = "${local.yba_base_url}/2.19.2.0/yba_installer_full-2.19.2.0-b121-linux-x86_64.tar.gz"
     }
   ]
   yba_selected_image = lookup({ for val in local.yba_image_list :
-    0 => val if val.version == var.yba_image_version }, 0,
-    {
-      "version" = "2.18"
-      "path"    = "https://downloads.yugabyte.com/releases/2.18.1.0/yba_installer_full-2.18.1.0-b84-linux-x86_64.tar.gz"
-  })
+  0 => val if val.version == var.yba_image_version }, 0, local.yba_image_list[0])
 
   image_list = [
+    {
+      "type" = "almalinux8"
+      "path" = "almalinux-cloud/almalinux-8"
+      "cmd"  = "yum"
+    },
     {
       "type" = "ubuntu18"
       "path" = "ubuntu-os-cloud/ubuntu-1804-lts"
@@ -38,11 +44,6 @@ locals {
     {
       "type" = "centos7"
       "path" = "centos-cloud/centos-7"
-      "cmd"  = "yum"
-    },
-    {
-      "type" = "almalinux8"
-      "path" = "almalinux-cloud/almalinux-8"
       "cmd"  = "yum"
     },
     {
@@ -67,13 +68,10 @@ locals {
     }
   ]
   selected_image = lookup({ for val in local.image_list :
-    0 => val if val.type == var.image_type }, 0,
-    {
-      "type" = "almalinux8"
-      "path" = "almalinux-cloud/almalinux-8"
-      "cmd"  = "yum"
-  })
+  0 => val if val.type == var.image_type }, 0, local.image_list[0])
 
+  bastion_selected_image = lookup({ for val in local.image_list :
+  0 => val if val.type == var.bastion_image_type }, 0, local.image_list[0])
 }
 
 data "local_file" "secure_cert" {
@@ -144,7 +142,7 @@ resource "google_compute_instance" "bastion_instance" {
 
   boot_disk {
     initialize_params {
-      image  = local.selected_image.path
+      image  = local.bastion_selected_image.path
       size   = var.bastion_disk_size
       labels = var.instance_labels
     }

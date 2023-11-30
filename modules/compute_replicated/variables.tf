@@ -106,3 +106,8 @@ variable "instance_labels" {
   type        = map(string)
   default     = {}
 }
+
+variable "bastion_image_type" {
+  description = "os distribution to use"
+  type        = string
+}
